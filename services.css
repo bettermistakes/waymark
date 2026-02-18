@@ -1,0 +1,21 @@
+/* 1. Style the main list container */
+.eligible-list {
+  padding-left: 1.25rem !important; 
+}
+.eligible-list li {
+  position: relative;  
+  padding-left: 1.25rem; 
+}
+
+/* 3. Create and create the fake bullet */
+.eligible-list li::before {
+  content: "•"; /* The bullet character */
+  position: absolute;
+  left: 0;
+  
+  /* Fine-tune vertical position. e.g., try 1px or 3px if it looks off */
+  top: 1px; 
+  
+  font-weight: bold;
+  font-size: 1.2em; /* Makes the bullet slightly larger than text */
+}
