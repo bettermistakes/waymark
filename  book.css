@@ -1,0 +1,112 @@
+.main--wrapper {
+  opacity: 0;
+}
+
+.highlight {
+  background-color: yellow;
+}
+
+.book-chapter-arrow.is--inactive {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.navbar--bar-function-trigger.is--download .navbar--function-popup {
+  opacity: 0;
+}
+
+.navbar--bar-function-trigger.is--download:hover .navbar--function-popup {
+  opacity: 1;
+}
+
+.navbar--bar-function-trigger.is--settings .navbar--function-popup {
+  opacity: 0;
+  display: none;
+}
+
+.copy--link-page .svg--copy {
+  opacity: 0;
+}
+
+.copy--link-page:hover .svg--copy {
+  opacity: 1;
+}
+
+.svg--copy-top {
+  opacity: 0;
+}
+
+.svg--copy.is--disabled {
+  opacity: 0;
+  display: none;
+}
+
+.navbar--book-waymark-trigger .waymark--popup {
+  opacity: 0;
+}
+
+.navbar--book-waymark-trigger:hover .waymark--popup {
+  opacity: 1;
+}
+
+.container--924.is--next-chapter.is--inactive {
+  display: none;
+}
+
+.book-bar-part-item:nth-last-child(1) .book-bar-part-link,
+.book-bar-part-item:nth-last-child(2) .book-bar-part-link,
+.book-bar-part-item:nth-last-child(3) .book-bar-part-link {
+  display: none;
+}
+
+.book-bar-part-item:nth-last-child(1) .book-bar-chapter-link,
+.book-bar-part-item:nth-last-child(2) .book-bar-chapter-link,
+.book-bar-part-item:nth-last-child(3) .book-bar-chapter-link {
+  color: var(--book--text);
+  letter-spacing: 0;
+  font-size: 14rem;
+  line-height: 1.5;
+  text-decoration: none;
+  opacity: 1;
+  display: block;
+  padding-left: 0rem;
+}
+
+.book-bar-part-item:nth-last-child(1) .book-bar-chapter-link:hover,
+.book-bar-part-item:nth-last-child(1) .book-bar-chapter-link.w--current,
+.book-bar-part-item:nth-last-child(2) .book-bar-chapter-link:hover,
+.book-bar-part-item:nth-last-child(2) .book-bar-chapter-link.w--current,
+.book-bar-part-item:nth-last-child(3) .book-bar-chapter-link:hover,
+.book-bar-part-item:nth-last-child(3) .book-bar-chapter-link.w--current {
+  opacity: 1;
+  color: var(--book--current-link);
+}
+
+.chapter--title-parent.is--margin-bottom.is--disabled {
+  display: none;
+}
+
+.is--toopen .navbar--trigger-icon-close {
+  opacity: 0;
+}
+
+.is--toclose .navbar--trigger-icon {
+  opacity: 0;
+}
+
+.searchbar--reset {
+  opacity: 0;
+  cursor: pointer;
+}
+
+.book-line {
+  background-color: var(--book--text);
+  height: 4rem;
+  max-width: 72rem;
+  width: 100%;
+  margin-top: 40rem;
+  margin-bottom: 40rem;
+  background-image: url(https://cdn.prod.website-files.com/64a3c873c4968010f637b2dc/66f2b2a2c6bf763834098ab8_Waymark%20Microsite%20Design.svg);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
