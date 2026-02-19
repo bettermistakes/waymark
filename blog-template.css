@@ -1,0 +1,10 @@
+  .no-scroll {
+    overflow: hidden;
+  }
+
+  .link-blog:hover ~ .up-next-blog-post-container .button {
+    /* Styles for the button when the link is hovered */
+    background-color: #007bff; /* Change background color */
+    color: #fff; /* Change text color */
+    /* Add other styles if necessary */
+  }
