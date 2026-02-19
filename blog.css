@@ -1,0 +1,35 @@
+  .no-scroll {
+    overflow: hidden;
+  }
+
+  .filters-form_block-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+
+  .fade-effect-left, .fade-effect-right {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 50px;
+    pointer-events: none;
+    opacity: 0; /* Start with fade-in area hidden */
+    transition: opacity 0.25s ease;
+  }
+
+  .fade-effect-left {
+    left: 0;
+    background: linear-gradient(to right, rgba(255, 252, 244, 1), rgba(255, 252, 244, 0));
+  }
+
+  .fade-effect-right {
+    right: 0;
+    background: linear-gradient(to right, rgba(255, 252, 244, 0), rgba(255, 252, 244, 1));
+  }
+
+  .filters-form_block-wrapper.scrolled-left .fade-effect-left {
+    opacity: 1; /* Show fade-in area when scrolled */
+  }
+
+  .filters-form_block-wrapper.scrolled-right .fade-effect-right {
+    opacity: 1; /* Show fade-in area when scrolled */
+  }
