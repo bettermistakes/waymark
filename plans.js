@@ -1,3 +1,4 @@
+
 (function () {
   "use strict";
 
@@ -33,7 +34,7 @@
     btn.dataset.scrollToggleMounted = "1";
 
     const body = document.body;
-    let locked = false;
+    let locked = body.classList.contains("no-scroll");
 
     function applyLock(state) {
       locked = state;
@@ -62,9 +63,8 @@
     if (!window.gsap || !window.MotionPathPlugin) return false;
 
     const orbitPath = document.querySelector("#orbitPath");
-    if (!orbitPath) return true; // nothing to do
+    if (!orbitPath) return true;
 
-    // avoid double init
     if (orbitPath.dataset.motionPathMounted === "1") return true;
     orbitPath.dataset.motionPathMounted = "1";
 
@@ -119,7 +119,6 @@
     const wrappers = gsap.utils.toArray(".solution_wrap");
     if (!wrappers.length) return true;
 
-    // avoid double init (document-level flag is enough)
     if (document.documentElement.dataset.solutionDropdownMounted === "1") return true;
     document.documentElement.dataset.solutionDropdownMounted = "1";
 
@@ -127,6 +126,10 @@
       const toggle = wrapper.querySelector(".solution_toggle");
       const dropdownList = wrapper.querySelector(".solution_dropdown");
       if (!toggle || !dropdownList) return;
+
+      // avoid double init per toggle
+      if (toggle.dataset.dropdownMounted === "1") return;
+      toggle.dataset.dropdownMounted = "1";
 
       const mobileIcon = toggle.querySelector(".mobile-icon");
       const items = dropdownList.querySelectorAll(".solution_item");
@@ -276,7 +279,6 @@
 
   // ---------------------------------------------------------------------------
   // 4) Commitment Grid SVG Path Animation (deduped)
-  //   - Uses .commitment-grid svg paths
   // ---------------------------------------------------------------------------
   function initCommitmentGridSvg() {
     if (!window.gsap || !window.ScrollTrigger) return false;
@@ -299,11 +301,7 @@
       for (let i = 0; i < paths.length; i++) {
         const p = paths[i];
         let len = 0;
-        try {
-          len = p.getTotalLength();
-        } catch (e) {
-          len = 0;
-        }
+        try { len = p.getTotalLength(); } catch (e) { len = 0; }
         lengths.push(len);
         total += len;
         gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
@@ -370,11 +368,7 @@
 
     els.forEach((el) => {
       obs.observe(el);
-      el.addEventListener(
-        "animationend",
-        () => el.classList.add("animation-finished"),
-        { once: true }
-      );
+      el.addEventListener("animationend", () => el.classList.add("animation-finished"), { once: true });
     });
 
     return true;
@@ -396,30 +390,7 @@
   }, { tries: 180, every: 100 });
 
 })();
-</script>
 
-<!-- If you REALLY need counterUp on this page, keep these BEFORE the counterUp init.
-     (Otherwise remove all of this block to avoid duplicate loads)
--->
-<!--
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/2.0.3/waypoints.min.js"></script>
-<script src="https://cdn.jsdelivr.net/jquery.counterup/1.0/jquery.counterup.min.js"></script>
-<script>
-  (function () {
-    function mountWhenReady(fn, tries = 80, every = 100) {
-      let n = 0;
-      const t = setInterval(() => {
-        n++;
-        const ok = fn();
-        if (ok || n >= tries) clearInterval(t);
-      }, every);
-    }
 
-    mountWhenReady(() => {
-      if (!window.jQuery || !jQuery.fn || !jQuery.fn.counterUp) return false;
-      jQuery(".counter").counterUp({ delay: 10, time: 2000 });
-      jQuery(".counter").addClass("animated fadeInDownBig");
-      return true;
-    });
-  })();
+
+
