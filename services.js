@@ -172,16 +172,16 @@
   // 6) FAQ Accordion
   // ---------------------------------------------------------------------------
   function initFAQ() {
-    const faqItems = document.querySelectorAll(".faq-item");
+    const faqItems = document.querySelectorAll(".faq2_accordion");
     if (!faqItems.length) return true;
 
     if (document.documentElement.dataset.faqMounted === "1") return true;
     document.documentElement.dataset.faqMounted = "1";
 
     faqItems.forEach((item) => {
-      const question = item.querySelector(".faq-question");
-      const answer = item.querySelector(".faq-answer");
-      const icon = item.querySelector(".faq-icon");
+      const question = item.querySelector(".faq2_question");
+      const answer = item.querySelector(".faq2_answer");
+      const iconWrapper = item.querySelector(".faq2_icon-wrapper");
 
       if (!question || !answer) return;
 
@@ -195,9 +195,9 @@
         faqItems.forEach((otherItem) => {
           if (otherItem !== item && otherItem.classList.contains("open")) {
             otherItem.classList.remove("open");
-            const otherAnswer = otherItem.querySelector(".faq-answer");
+            const otherAnswer = otherItem.querySelector(".faq2_answer");
             if (otherAnswer) otherAnswer.style.maxHeight = "0";
-            const otherIcon = otherItem.querySelector(".faq-icon");
+            const otherIcon = otherItem.querySelector(".faq2_icon-wrapper");
             if (otherIcon) otherIcon.style.transform = "rotate(0deg)";
           }
         });
@@ -206,10 +206,10 @@
 
         if (!isOpen) {
           answer.style.maxHeight = answer.scrollHeight + "px";
-          if (icon) icon.style.transform = "rotate(180deg)";
+          if (iconWrapper) iconWrapper.style.transform = "rotate(180deg)";
         } else {
           answer.style.maxHeight = "0";
-          if (icon) icon.style.transform = "rotate(0deg)";
+          if (iconWrapper) iconWrapper.style.transform = "rotate(0deg)";
         }
       });
     });
