@@ -169,62 +169,12 @@
   }
 
   // ---------------------------------------------------------------------------
-  // 6) FAQ Accordion
-  // ---------------------------------------------------------------------------
-  function initFAQ() {
-    const faqItems = document.querySelectorAll(".faq2_accordion");
-    if (!faqItems.length) return true;
-
-    if (document.documentElement.dataset.faqMounted === "1") return true;
-    document.documentElement.dataset.faqMounted = "1";
-
-    faqItems.forEach((item) => {
-      const question = item.querySelector(".faq2_question");
-      const answer = item.querySelector(".faq2_answer");
-      const iconWrapper = item.querySelector(".faq2_icon-wrapper");
-
-      if (!question || !answer) return;
-
-      answer.style.maxHeight = "0";
-      answer.style.overflow = "hidden";
-      answer.style.transition = "max-height 0.3s ease";
-
-      question.addEventListener("click", () => {
-        const isOpen = item.classList.contains("open");
-
-        faqItems.forEach((otherItem) => {
-          if (otherItem !== item && otherItem.classList.contains("open")) {
-            otherItem.classList.remove("open");
-            const otherAnswer = otherItem.querySelector(".faq2_answer");
-            if (otherAnswer) otherAnswer.style.maxHeight = "0";
-            const otherIcon = otherItem.querySelector(".faq2_icon-wrapper");
-            if (otherIcon) otherIcon.style.transform = "rotate(0deg)";
-          }
-        });
-
-        item.classList.toggle("open");
-
-        if (!isOpen) {
-          answer.style.maxHeight = answer.scrollHeight + "px";
-          if (iconWrapper) iconWrapper.style.transform = "rotate(180deg)";
-        } else {
-          answer.style.maxHeight = "0";
-          if (iconWrapper) iconWrapper.style.transform = "rotate(0deg)";
-        }
-      });
-    });
-
-    return true;
-  }
-
-  // ---------------------------------------------------------------------------
   // Boot (polling like your Splide pattern)
   // ---------------------------------------------------------------------------
   initBreakpointReload();
   raf2(initNavbarGrey);
   raf2(initScrollToggle);
   raf2(initUnderline);
-  raf2(initFAQ);
   mountWhenReady(initMobileRods, { tries: 120, every: 100 });
 
 })();
