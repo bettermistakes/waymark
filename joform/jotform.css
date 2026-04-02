@@ -167,7 +167,7 @@ li.form-line:not(.form-line-column)[data-type="control_fullname"]
   margin: 0 !important;
 }
 .supernova {
-  background-color: #fffcf4 !important;
+  background-color: transparent !important;
 }
 .supernova body {
   background-color: transparent !important;
@@ -244,6 +244,13 @@ ul.form-section {
   color: #a7afe5 !important;
   cursor: pointer !important;
   text-decoration: none !important;
+}
+
+.form-all p {
+  color: #65686f !important;
+  margin-bottom: 1em !important;
+  font-size: 0.875rem !important;
+  line-height: 1.1 !important;
 }
 
 /* Heights */
