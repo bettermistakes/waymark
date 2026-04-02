@@ -308,4 +308,126 @@ div.form-header-group.hasImage {
 
 /*__INSPECT_SEPERATOR__*/
 
-    /* Injected CSS Code */
+/* --- Webflow / site utilities --- */
+
+.navbar-link.w--current.grey {
+  color: #252733 !important;
+}
+
+.splide__pagination.splide__pagination--ltr {
+  width: 70% !important;
+  padding-left: 0px !important;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+
+.padding-top-0 {
+  padding-top: 0 !important;
+}
+
+.padding-bottom-0 {
+  padding-bottom: 0 !important;
+}
+
+.underline-colors {
+  background-size: 0% 4px;
+  background-repeat: no-repeat;
+  background-position: bottom left;
+  transition: background-size 10ms ease;
+}
+
+.animate {
+  animation: background-animation 10ms forwards;
+}
+
+.animate.animation-finished {
+  background-size: 100% 4px;
+}
+
+@keyframes background-animation {
+  0% {
+    background-size: 0% 4px;
+  }
+  100% {
+    background-size: 100% 4px;
+  }
+}
+
+@media only screen and (max-width: 1060px) and (min-width: 992px) {
+  .navbar-links-grid {
+    grid-column-gap: 1.5rem;
+  }
+}
+
+@media screen and (min-width: 1101px) {
+  .location-icon-fix {
+    padding-left: 1.5vw;
+  }
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  overflow: overlay;
+}
+
+/* Responsive font sizing */
+html {
+  font-size: calc((100vw / 1280) * 16);
+}
+
+@media screen and (min-width: 1280px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  html {
+    font-size: calc((100vw / 768) * 16);
+  }
+}
+
+@media screen and (min-width: 480px) and (max-width: 767px) {
+  html {
+    font-size: calc((100vw / 480) * 16);
+  }
+}
+
+@media screen and (max-width: 479px) {
+  html {
+    font-size: calc((100vw / 375) * 16);
+  }
+}
+
+/* Reset margins for typography elements */
+[class*="heading-style-"],
+[class*="body-text-"] {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+[class*="heading-style-"] {
+  font-family: var(--_typography---heading);
+}
+
+/* Apply "..." after X lines of text */
+.text-style-2lines,
+.text-style-3lines {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+}
+
+.text-style-2lines {
+  -webkit-line-clamp: 2;
+}
+
+.text-style-3lines {
+  -webkit-line-clamp: 3;
+}

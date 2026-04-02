@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """
-Embed jotform.css into Get_in_Touch.html inside <style id="form-designer-style">.
+Keep Get_in_Touch.html using only <link href="jotform.css"> — no inline CSS.
 
-Edit only jotform.css, then run:
+Edit jotform.css, then run:
   python3 inject_jotform_css.py
 
-On Jotform live (no HTML access): paste the contents of jotform.css into
-Form Settings → Custom CSS — same source of truth as this file.
+This script removes any <style id="form-designer-style"> block (e.g. from a fresh
+Jotform export) and ensures a single link to jotform.css after the payment CSS.
+
+On Jotform live: paste jotform.css into Form Settings → Custom CSS.
 """
 from __future__ import annotations
 
@@ -18,14 +20,18 @@ DIR = Path(__file__).resolve().parent
 HTML_FILE = DIR / "Get_in_Touch.html"
 CSS_FILE = DIR / "jotform.css"
 
-STYLE_OPEN = '<style type="text/css" id="form-designer-style">'
-LINK_PATTERN = re.compile(
-    r'<link[^>]*\bid="form-designer-style"[^>]*/>',
+INLINE_FORM_STYLE = re.compile(
+    r'<style\s+type="text/css"\s+id="form-designer-style"\s*>.*?</style>\s*',
+    re.DOTALL | re.IGNORECASE,
+)
+JOTFORM_LINK = re.compile(
+    r'<link[^>]*href=["\']jotform\.css["\'][^>]*/\s*>',
     re.IGNORECASE | re.DOTALL,
 )
-STYLE_BLOCK_PATTERN = re.compile(
-    STYLE_OPEN + r".*?" + r"</style>",
-    re.DOTALL | re.IGNORECASE,
+LINK_SNIPPET = '<link type="text/css" rel="stylesheet" href="jotform.css" />\n'
+AFTER_PAYMENT_FEATURE = re.compile(
+    r'(<link[^>]*payment_feature\.css[^>]*/>\s*)',
+    re.IGNORECASE | re.DOTALL,
 )
 
 
@@ -37,39 +43,25 @@ def main() -> int:
         print(f"Missing {HTML_FILE}", file=sys.stderr)
         return 1
 
-    raw = CSS_FILE.read_text(encoding="utf-8")
-    lines = raw.splitlines()
-    non_empty = [ln for ln in lines if ln.strip()]
-    if non_empty:
-        min_indent = min(len(ln) - len(ln.lstrip(" \t")) for ln in non_empty)
-        lines = [ln[min_indent:] if len(ln) >= min_indent else ln for ln in lines]
-    css = "\n".join(lines).rstrip() + "\n"
-    # Escape accidental </style> in CSS (breaks HTML if present)
-    if "</style>" in css.lower():
-        print("Warning: jotform.css contains '</style>' — fix or split rules.", file=sys.stderr)
-
-    inner = "\n".join("    " + line if line else "" for line in css.splitlines()) + "\n"
-    block = STYLE_OPEN + "\n" + inner + "</style>"
-
     html = HTML_FILE.read_text(encoding="utf-8")
+    new_html = INLINE_FORM_STYLE.sub("", html)
 
-    if LINK_PATTERN.search(html):
-        new_html = LINK_PATTERN.sub(block, html, count=1)
-    elif STYLE_BLOCK_PATTERN.search(html):
-        new_html = STYLE_BLOCK_PATTERN.sub(block, html, count=1)
-    else:
-        print(
-            f"Could not find {STYLE_OPEN!r} block or form-designer-style link in {HTML_FILE}",
-            file=sys.stderr,
-        )
-        return 1
+    if not JOTFORM_LINK.search(new_html):
+        m = AFTER_PAYMENT_FEATURE.search(new_html)
+        if not m:
+            print(
+                f"Could not find payment_feature.css link to insert jotform.css after in {HTML_FILE}",
+                file=sys.stderr,
+            )
+            return 1
+        new_html = AFTER_PAYMENT_FEATURE.sub(r"\1" + LINK_SNIPPET, new_html, count=1)
 
     if new_html == html:
-        print("No change written (pattern matched but content identical?).")
+        print("No change needed (link present, no inline form-designer-style).")
         return 0
 
     HTML_FILE.write_text(new_html, encoding="utf-8")
-    print(f"Updated {HTML_FILE} from {CSS_FILE}")
+    print(f"Updated {HTML_FILE} (link-only; removed inline #form-designer-style if any).")
     return 0
 
 
