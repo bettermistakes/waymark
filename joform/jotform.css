@@ -1,19 +1,23 @@
 /* Injected CSS Code */
 
+#cid_1 {
+  display: none !important;
+}
+
 /* Begining of advanced designer */
 /*PREFERENCES STYLE*/
 /*  1 - Preferences style */
 /*  1 - FONT FAMILY */
 .form-all {
-  font-family: "Inter", sans-serif;
+  font-family: "Inter", sans-serif !important;
 }
 /* 2 - FORM WIDTH */
 .form-all {
-  max-width: 752px;
+  max-width: 47rem !important;
 }
 /* 5 - FONT SIZE */
 .form-all {
-  font-size: 16px;
+  font-size: 1rem !important;
 }
 /* 5 - input bg color */
 .form-textbox,
@@ -22,22 +26,24 @@
 .form-checkbox-other-input,
 .form-captcha input,
 .form-spinner input {
-  background-color: #ffffff;
+  background-color: #ffffff !important;
 }
 /* 10 - LINE SPACING */
 .form-line {
-  margin-top: 12px;
-  margin-bottom: 12px;
+  margin-top: 0.75rem !important;
+  margin-bottom: 0.75rem !important;
 }
 .supernova .form-all,
 .form-all {
-  background-color: #e0e4ff;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
 .supernova {
-  background-color: #fffcf4;
+  background-color: #fffcf4 !important;
 }
 .supernova body {
-  background-color: transparent;
+  background-color: transparent !important;
 }
 .form-all,
 .form-label-top,
@@ -55,14 +61,14 @@ span.FITB .form-checkbox label,
 span.FITB-inptCont[data-type=checkbox] label,
 span.FITB-inptCont[data-type=radiobox] label,
 .form-sub-label {
-  color: #2c3345;
+  color: #2c3345 !important;
 }
 /*PREFERENCES STYLE*/
 /* 17 - INPUT WIDTHS */
 /*  20 - FORM PADDING */
 @media screen and (min-width: 768px) {
   ul.form-section {
-    padding: 0px 38px;
+    padding: 0 2.375rem !important;
   }
 }
 /* Heights */
@@ -71,238 +77,240 @@ span.FITB-inptCont[data-type=radiobox] label,
 /* 12 - ROUNDED INPUTS */
 .form-radio-item,
 .form-checkbox-item {
-  padding-bottom: 0px;
+  padding-bottom: 0 !important;
 }
 .form-radio-item:last-child,
 .form-checkbox-item:last-child {
-  padding-bottom: 0;
+  padding-bottom: 0 !important;
 }
 .form-checkbox-item .form-checkbox + label,
 .form-checkbox-item .form-checkbox + span {
-  padding-left: 30px;
+  padding-left: 1.875rem !important;
 }
 .form-radio-item .form-radio + label,
 .form-radio-item .form-radio + span {
-  padding-left: 30px;
+  padding-left: 1.875rem !important;
 }
 .form-single-column .form-checkbox-item,
 .form-single-column .form-radio-item {
-  width: 100%;
+  width: 100% !important;
 }
 .form-checkbox-item .editor-container div,
 .form-radio-item .editor-container div {
-  position: relative;
+  position: relative !important;
 }
 .form-checkbox-item .editor-container div:before,
 .form-radio-item .editor-container div:before {
-  display: inline-block;
-  vertical-align: middle;
-  left: 0;
-  width: 20px;
-  height: 20px;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  left: 0 !important;
+  width: 1.25rem !important;
+  height: 1.25rem !important;
 }
 .form-checkbox-item input,
 .form-radio-item input {
-  margin-top: 2px;
+  margin-top: 0.125rem !important;
 }
 .form-line .form-checkbox:checked + label:before,
 .form-line .form-checkbox:checked + span:before {
-  background-color: #2e69ff;
-  border-color: #2e69ff;
+  background-color: #2e69ff !important;
+  border-color: #2e69ff !important;
 }
 .form-line .form-radio:checked + label:before,
 .form-line .form-radio:checked + span:before {
-  border-color: #2e69ff;
+  border-color: #2e69ff !important;
 }
 .form-line .form-radio:checked + label:after,
 .form-line .form-radio:checked + span:after {
-  background-color: #2e69ff;
+  background-color: #2e69ff !important;
 }
 .form-line .form-checkbox:hover + label:before,
 .form-line .form-checkbox:hover + span:before,
 .form-line .form-radio:hover + label:before,
 .form-line .form-radio:hover + span:before {
-  border-color: rgba(46, 105, 255, 0.5);
-  box-shadow: 0 0 0 2px rgba(46, 105, 255, 0.25);
+  border-color: rgba(46, 105, 255, 0.5) !important;
+  box-shadow: 0 0 0 0.125rem rgba(46, 105, 255, 0.25) !important;
 }
 .form-line .form-checkbox:focus + label:before,
 .form-line .form-checkbox:focus + span:before,
 .form-line .form-radio:focus + label:before,
 .form-line .form-radio:focus + span:before {
-  border-color: #2e69ff;
-  box-shadow: 0 0 0 3px rgba(46, 105, 255, 0.25);
+  border-color: #2e69ff !important;
+  box-shadow: 0 0 0 0.1875rem rgba(46, 105, 255, 0.25) !important;
 }
 .submit-button {
-  font-size: 16px;
-  font-weight: normal;
-  font-family: inherit;
+  font-size: 1rem !important;
+  font-weight: normal !important;
+  font-family: inherit !important;
 }
 .submit-button {
-  min-width: 180px;
+  min-width: 11.25rem !important;
 }
 .form-all .form-pagebreak-back,
 .form-all .form-pagebreak-next {
-  font-family: "Inter", sans-serif;
-  font-size: 16px;
-  font-weight: normal;
+  font-family: "Inter", sans-serif !important;
+  font-size: 1rem !important;
+  font-weight: normal !important;
 }
 .form-all .form-pagebreak-back,
 .form-all .form-pagebreak-next {
-  min-width: 128px;
+  min-width: 8rem !important;
 }
 li[data-type="control_image"] div {
-  text-align: left;
+  text-align: left !important;
 }
 li[data-type="control_image"] img {
-  border: none;
-  border-width: 0px !important;
+  border: none !important;
+  border-width: 0 !important;
   border-style: solid !important;
   border-color: false !important;
 }
 .supernova {
-  background-repeat: no-repeat;
-  background-attachment: scroll;
-  background-position: center top;
-  background-attachment: fixed;
-  background-size: auto;
-  background-size: cover;
+  background-repeat: no-repeat !important;
+  background-attachment: scroll !important;
+  background-position: center top !important;
+  background-attachment: fixed !important;
+  background-size: auto !important;
+  background-size: cover !important;
 }
 .supernova {
-  background-image: none;
+  background-image: none !important;
 }
 /* | */
 .form-all {
-  background-repeat: no-repeat;
-  background-attachment: scroll;
-  background-position: center top;
-  background-size: cover;
+  background-repeat: no-repeat !important;
+  background-attachment: scroll !important;
+  background-position: center top !important;
+  background-size: cover !important;
 }
 .form-header-group {
-  background-repeat: no-repeat;
-  background-attachment: scroll;
-  background-position: center top;
+  background-repeat: no-repeat !important;
+  background-attachment: scroll !important;
+  background-position: center top !important;
 }
 .header-large h1.form-header {
-  font-size: 2em;
+  font-size: 2em !important;
 }
 .header-large h2.form-header {
-  font-size: 1.5em;
+  font-size: 1.5em !important;
 }
 .header-large h3.form-header {
-  font-size: 1.17em;
+  font-size: 1.17em !important;
 }
 .header-large h1 + .form-subHeader {
-  font-size: 1em;
+  font-size: 1em !important;
 }
 .header-large h2 + .form-subHeader {
-  font-size: .875em;
+  font-size: .875em !important;
 }
 .header-large h3 + .form-subHeader {
-  font-size: .75em;
+  font-size: .75em !important;
 }
 .header-default h1.form-header {
-  font-size: 2em;
+  font-size: 2em !important;
 }
 .header-default h2.form-header {
-  font-size: 1.5em;
+  font-size: 1.5em !important;
 }
 .header-default h3.form-header {
-  font-size: 1.17em;
+  font-size: 1.17em !important;
 }
 .header-default h1 + .form-subHeader {
-  font-size: 1em;
+  font-size: 1em !important;
 }
 .header-default h2 + .form-subHeader {
-  font-size: .875em;
+  font-size: .875em !important;
 }
 .header-default h3 + .form-subHeader {
-  font-size: .75em;
+  font-size: .75em !important;
 }
 .header-small h1.form-header {
-  font-size: 2em;
+  font-size: 2em !important;
 }
 .header-small h2.form-header {
-  font-size: 1.5em;
+  font-size: 1.5em !important;
 }
 .header-small h3.form-header {
-  font-size: 1.17em;
+  font-size: 1.17em !important;
 }
 .header-small h1 + .form-subHeader {
-  font-size: 1em;
+  font-size: 1em !important;
 }
 .header-small h2 + .form-subHeader {
-  font-size: .875em;
+  font-size: .875em !important;
 }
 .header-small h3 + .form-subHeader {
-  font-size: .75em;
+  font-size: .75em !important;
 }
 .form-header-group {
-  text-align: left;
+  text-align: left !important;
 }
 div.form-header-group.header-large,
 div.form-header-group.hasImage {
-  margin: 0px -38px;
+  margin: 0 -38px !important;
 }
-div.form-header-group.header-large,
-div.form-header-group.hasImage {
-  padding: 40px 52px;
+div.form-header-group.header-large {
+  padding: 2.5rem 0 !important;
+}
+div.form-header-group.header-large.hasImage {
+  padding: 2.5rem 3.25rem !important;
 }
 .form-header-group .form-header,
 .form-header-group .form-subHeader {
-  color: -1;
+  color: -1 !important;
 }
 .form-line.form-line-error {
-  -webkit-transition-property: none;
-  -moz-transition-property: none;
-  -ms-transition-property: none;
-  -o-transition-property: none;
-  transition-property: none;
-  -webkit-transition-duration: 0.3s;
-  -moz-transition-duration: 0.3s;
-  -ms-transition-duration: 0.3s;
-  -o-transition-duration: 0.3s;
-  transition-duration: 0.3s;
-  -webkit-transition-timing-function: ease;
-  -moz-transition-timing-function: ease;
-  -ms-transition-timing-function: ease;
-  -o-transition-timing-function: ease;
-  transition-timing-function: ease;
-  background-color: #fff4f4;
+  -webkit-transition-property: none !important;
+  -moz-transition-property: none !important;
+  -ms-transition-property: none !important;
+  -o-transition-property: none !important;
+  transition-property: none !important;
+  -webkit-transition-duration: 0.3s !important;
+  -moz-transition-duration: 0.3s !important;
+  -ms-transition-duration: 0.3s !important;
+  -o-transition-duration: 0.3s !important;
+  transition-duration: 0.3s !important;
+  -webkit-transition-timing-function: ease !important;
+  -moz-transition-timing-function: ease !important;
+  -ms-transition-timing-function: ease !important;
+  -o-transition-timing-function: ease !important;
+  transition-timing-function: ease !important;
+  background-color: #fff4f4 !important;
 }
 .form-line.form-line-error .form-error-message {
-  background-color: #f23a3c;
-  clear: both;
-  float: none;
+  background-color: #f23a3c !important;
+  clear: both !important;
+  float: none !important;
 }
 .form-line.form-line-error .form-error-message .form-error-arrow {
-  border-bottom-color: #f23a3c;
+  border-bottom-color: #f23a3c !important;
 }
 .form-line.form-line-error input:not(#coupon-input),
 .form-line.form-line-error textarea,
 .form-line.form-line-error .form-validation-error {
-  border: 1px solid #f23a3c;
-  box-shadow: 0 0 3px #f23a3c;
+  border: 0.0625rem solid #f23a3c !important;
+  box-shadow: 0 0 0.1875rem #f23a3c !important;
 }
 .form-line-error {
-  -webkit-transition-property: none;
-  -moz-transition-property: none;
-  -ms-transition-property: none;
-  -o-transition-property: none;
-  transition-property: none;
-  -webkit-transition-duration: 0.3s;
-  -moz-transition-duration: 0.3s;
-  -ms-transition-duration: 0.3s;
-  -o-transition-duration: 0.3s;
-  transition-duration: 0.3s;
-  -webkit-transition-timing-function: ease;
-  -moz-transition-timing-function: ease;
-  -ms-transition-timing-function: ease;
-  -o-transition-timing-function: ease;
-  transition-timing-function: ease;
-  background-color: #fff4f4;
+  -webkit-transition-property: none !important;
+  -moz-transition-property: none !important;
+  -ms-transition-property: none !important;
+  -o-transition-property: none !important;
+  transition-property: none !important;
+  -webkit-transition-duration: 0.3s !important;
+  -moz-transition-duration: 0.3s !important;
+  -ms-transition-duration: 0.3s !important;
+  -o-transition-duration: 0.3s !important;
+  transition-duration: 0.3s !important;
+  -webkit-transition-timing-function: ease !important;
+  -moz-transition-timing-function: ease !important;
+  -ms-transition-timing-function: ease !important;
+  -o-transition-timing-function: ease !important;
+  transition-timing-function: ease !important;
+  background-color: #fff4f4 !important;
 }
 .form-line.form-line-active {
-  background-color: #f1f5ff;
+  background-color: #f1f5ff !important;
 }
 /* 29 - FORM COLUMNS */
 
@@ -316,11 +324,11 @@ div.form-header-group.hasImage {
 
 .splide__pagination.splide__pagination--ltr {
   width: 70% !important;
-  padding-left: 0px !important;
+  padding-left: 0 !important;
 }
 
 .no-scroll {
-  overflow: hidden;
+  overflow: hidden !important;
 }
 
 .padding-top-0 {
@@ -332,102 +340,102 @@ div.form-header-group.hasImage {
 }
 
 .underline-colors {
-  background-size: 0% 4px;
-  background-repeat: no-repeat;
-  background-position: bottom left;
-  transition: background-size 10ms ease;
+  background-size: 0% 0.25rem !important;
+  background-repeat: no-repeat !important;
+  background-position: bottom left !important;
+  transition: background-size 10ms ease !important;
 }
 
 .animate {
-  animation: background-animation 10ms forwards;
+  animation: background-animation 10ms forwards !important;
 }
 
 .animate.animation-finished {
-  background-size: 100% 4px;
+  background-size: 100% 0.25rem !important;
 }
 
 @keyframes background-animation {
   0% {
-    background-size: 0% 4px;
+    background-size: 0% 0.25rem !important;
   }
   100% {
-    background-size: 100% 4px;
+    background-size: 100% 0.25rem !important;
   }
 }
 
 @media only screen and (max-width: 1060px) and (min-width: 992px) {
   .navbar-links-grid {
-    grid-column-gap: 1.5rem;
+    grid-column-gap: 1.5rem !important;
   }
 }
 
 @media screen and (min-width: 1101px) {
   .location-icon-fix {
-    padding-left: 1.5vw;
+    padding-left: 1.5vw !important;
   }
 }
 
 body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-  overflow-x: hidden;
-  overflow: overlay;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  font-smoothing: antialiased !important;
+  text-rendering: optimizeLegibility !important;
+  overflow-x: hidden !important;
+  overflow: overlay !important;
 }
 
 /* Responsive font sizing */
 html {
-  font-size: calc((100vw / 1280) * 16);
+  font-size: calc((100vw / 1280) * 16) !important;
 }
 
 @media screen and (min-width: 1280px) {
   html {
-    font-size: 16px;
+    font-size: 1rem !important;
   }
 }
 
 @media screen and (min-width: 768px) and (max-width: 991px) {
   html {
-    font-size: calc((100vw / 768) * 16);
+    font-size: calc((100vw / 768) * 16) !important;
   }
 }
 
 @media screen and (min-width: 480px) and (max-width: 767px) {
   html {
-    font-size: calc((100vw / 480) * 16);
+    font-size: calc((100vw / 480) * 16) !important;
   }
 }
 
 @media screen and (max-width: 479px) {
   html {
-    font-size: calc((100vw / 375) * 16);
+    font-size: calc((100vw / 375) * 16) !important;
   }
 }
 
 /* Reset margins for typography elements */
 [class*="heading-style-"],
 [class*="body-text-"] {
-  margin-top: 0px;
-  margin-bottom: 0px;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 [class*="heading-style-"] {
-  font-family: var(--_typography---heading);
+  font-family: var(--_typography---heading) !important;
 }
 
 /* Apply "..." after X lines of text */
 .text-style-2lines,
 .text-style-3lines {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  -webkit-box-orient: vertical !important;
 }
 
 .text-style-2lines {
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 2 !important;
 }
 
 .text-style-3lines {
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 3 !important;
 }
