@@ -164,6 +164,7 @@ li.form-line:not(.form-line-column)[data-type="control_fullname"]
   background-color: transparent !important;
   box-shadow: none !important;
   filter: none !important;
+  margin: 0 !important;
 }
 .supernova {
   background-color: #fffcf4 !important;
