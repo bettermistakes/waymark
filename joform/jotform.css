@@ -25,8 +25,21 @@
 }
 
 /* From Get_in_Touch.html: inline style="" on elements (px → rem, 16px = 1rem) */
+li.form-line:not([data-payment="true"]) [data-wrapper-react="true"] {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
 .form-sub-label-container {
   vertical-align: top !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.form-sub-label-container > label.form-sub-label,
+.form-sub-label-container > label {
+  order: -1 !important;
 }
 
 .form-sub-label {
@@ -43,14 +56,6 @@
 
 .other-input-container {
   display: none;
-}
-
-#input_4,
-#input_9,
-#input_5,
-#input_6_full {
-  width: 19.375rem !important;
-  max-width: 100% !important;
 }
 
 #input_7 {
@@ -84,7 +89,7 @@ ul.form-section.page-section > li:last-child {
 }
 /* 2 - FORM WIDTH */
 .form-all {
-  max-width: 47rem !important;
+  max-width: none !important;
 }
 /* 5 - FONT SIZE */
 .form-all {
@@ -99,11 +104,61 @@ ul.form-section.page-section > li:last-child {
 .form-spinner input {
   background-color: #ffffff !important;
 }
+
+.form-textbox {
+  border-radius: 0.2rem !important;
+  color: #333 !important;
+  vertical-align: middle !important;
+  background-color: #fff !important;
+  border: 0.0625rem solid #ccc !important;
+  width: 100% !important;
+  height: 2.375rem !important;
+  margin-bottom: 0.625rem !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  line-height: 1.42857 !important;
+  display: block !important;
+  box-sizing: border-box !important;
+}
+
+.form-dropdown:hover,
+.form-textarea:hover,
+.form-textbox:hover,
+.signature-pad-passive:hover,
+.signature-wrapper:hover {
+  box-shadow: none !important;
+  border-color: #ccc !important;
+}
+
+.form-dropdown:focus,
+.form-textarea:focus,
+.form-textbox:focus,
+.signature-pad-passive:focus,
+.signature-wrapper:focus {
+  box-shadow: none !important;
+  border-color: #3898ec !important;
+  outline: 0 !important;
+}
+
 /* 10 - LINE SPACING */
 .form-line {
-  margin-top: 0.75rem !important;
-  margin-bottom: 0.75rem !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  margin-bottom: 0 !important;
 }
+
+li.form-line:not(.form-line-column) .form-input-wide[data-layout="half"] {
+  width: 100% !important;
+}
+
+li.form-line:not(.form-line-column)[data-type="control_fullname"]
+  .form-input-wide
+  [data-wrapper-react]:not(.extended)
+  .form-sub-label-container
+  + .form-sub-label-container {
+  margin: 0 !important;
+}
+
 .supernova .form-all,
 .form-all {
   background-color: transparent !important;
@@ -127,21 +182,69 @@ span.FITB .qb-checkbox-label,
 span.FITB .qb-radiobox-label,
 span.FITB .form-radio label,
 span.FITB .form-checkbox label,
-[data-blotid][data-type=checkbox] [data-labelid],
-[data-blotid][data-type=radiobox] [data-labelid],
-span.FITB-inptCont[data-type=checkbox] label,
-span.FITB-inptCont[data-type=radiobox] label,
+[data-blotid][data-type="checkbox"] [data-labelid],
+[data-blotid][data-type="radiobox"] [data-labelid],
+span.FITB-inptCont[data-type="checkbox"] label,
+span.FITB-inptCont[data-type="radiobox"] label,
 .form-sub-label {
   color: #2c3345 !important;
 }
+
+.form-label-top,
+.form-label-left,
+.form-label-right,
+.form-checkbox-item label,
+.form-radio-item label {
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.form-label {
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  margin: 0 0 0.625rem 0 !important;
+}
+
+.form-sub-label {
+  display: none !important;
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  margin: 0 0 0.625rem 0 !important;
+}
+
+li.form-line[data-type="control_fullname"] > .form-label.form-label-top {
+  display: none !important;
+}
+
+li.form-line[data-type="control_fullname"] .form-sub-label {
+  display: block !important;
+}
+
 /*PREFERENCES STYLE*/
 /* 17 - INPUT WIDTHS */
 /*  20 - FORM PADDING */
-@media screen and (min-width: 768px) {
-  ul.form-section {
-    padding: 0 2.375rem !important;
-  }
+ul.form-section {
+  display: flex !important;
+  flex-direction: column !important;
+  row-gap: 1rem !important;
+  padding: 0 !important;
 }
+
+.form-multiple-column,
+.form-single-column {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+.form-all a {
+  color: #a7afe5 !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+}
+
 /* Heights */
 /* 11 - LINE PADDING */
 /* LABEL STYLE */
@@ -161,6 +264,8 @@ span.FITB-inptCont[data-type=radiobox] label,
 .form-radio-item .form-radio + label,
 .form-radio-item .form-radio + span {
   padding-left: 1.875rem !important;
+  margin: 0 !important;
+  padding-top: 0.2rem !important;
 }
 .form-single-column .form-checkbox-item,
 .form-single-column .form-radio-item {
@@ -182,6 +287,27 @@ span.FITB-inptCont[data-type=radiobox] label,
 .form-radio-item input {
   margin-top: 0.125rem !important;
 }
+
+.form-checkbox + label:before,
+.form-checkbox + span:before,
+.form-radio + label:before,
+.form-radio + span:before {
+  background-color: #fff !important;
+  border: 1px solid #b8bdc9 !important;
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+}
+
+.form-radio + label:before,
+.form-radio + span:before {
+  border-radius: 50% !important;
+  transition: border-color 0.15s !important;
+}
+
 .form-line .form-checkbox:checked + label:before,
 .form-line .form-checkbox:checked + span:before {
   background-color: #2e69ff !important;
@@ -209,14 +335,35 @@ span.FITB-inptCont[data-type=radiobox] label,
   border-color: #2e69ff !important;
   box-shadow: 0 0 0 0.1875rem rgba(46, 105, 255, 0.25) !important;
 }
-.submit-button {
+.submit-button,
+.form-submit-button {
+  background-color: #252733 !important;
+  border-radius: 0.25rem !important;
+  width: 100% !important;
+  min-width: 0 !important;
   font-size: 1rem !important;
-  font-weight: normal !important;
+  font-weight: 400 !important;
   font-family: inherit !important;
+  color: #fff !important;
+  line-height: inherit !important;
+  cursor: pointer !important;
+  padding: 0.5625rem 0.9375rem !important;
+  text-decoration: none !important;
+  display: inline-block !important;
 }
-.submit-button {
-  min-width: 11.25rem !important;
+
+.form-buttons-wrapper {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-top: none !important;
+  border-color: transparent !important;
 }
+
+.jf-form-buttons:not(.form-pagebreak-back) {
+  margin: 0 !important;
+}
+
 .form-all .form-pagebreak-back,
 .form-all .form-pagebreak-next {
   font-family: "Inter", sans-serif !important;
@@ -272,10 +419,10 @@ li[data-type="control_image"] img {
   font-size: 1em !important;
 }
 .header-large h2 + .form-subHeader {
-  font-size: .875em !important;
+  font-size: 0.875em !important;
 }
 .header-large h3 + .form-subHeader {
-  font-size: .75em !important;
+  font-size: 0.75em !important;
 }
 .header-default h1.form-header {
   font-size: 2em !important;
@@ -290,10 +437,10 @@ li[data-type="control_image"] img {
   font-size: 1em !important;
 }
 .header-default h2 + .form-subHeader {
-  font-size: .875em !important;
+  font-size: 0.875em !important;
 }
 .header-default h3 + .form-subHeader {
-  font-size: .75em !important;
+  font-size: 0.75em !important;
 }
 .header-small h1.form-header {
   font-size: 2em !important;
@@ -308,10 +455,10 @@ li[data-type="control_image"] img {
   font-size: 1em !important;
 }
 .header-small h2 + .form-subHeader {
-  font-size: .875em !important;
+  font-size: 0.875em !important;
 }
 .header-small h3 + .form-subHeader {
-  font-size: .75em !important;
+  font-size: 0.75em !important;
 }
 .form-header-group {
   text-align: left !important;
@@ -381,7 +528,7 @@ div.form-header-group.header-large.hasImage {
   background-color: #fff4f4 !important;
 }
 .form-line.form-line-active {
-  background-color: #f1f5ff !important;
+  background-color: transparent !important;
 }
 /* 29 - FORM COLUMNS */
 
