@@ -4,6 +4,77 @@
   display: none !important;
 }
 
+/* From Get_in_Touch.html: first inline <style> (@media print) */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  .form-section {
+    display: inline !important;
+  }
+  .form-pagebreak {
+    display: none !important;
+  }
+  .form-section-closed {
+    height: auto !important;
+  }
+  .page-section {
+    position: initial !important;
+  }
+}
+
+/* From Get_in_Touch.html: inline style="" on elements (px → rem, 16px = 1rem) */
+.form-sub-label-container {
+  vertical-align: top !important;
+}
+
+.form-sub-label {
+  min-height: 0.8125rem !important;
+}
+
+.form-single-column .form-radio-item {
+  clear: left !important;
+}
+
+#label_other_8 {
+  text-indent: 0 !important;
+}
+
+.other-input-container {
+  display: none;
+}
+
+#input_4,
+#input_9,
+#input_5,
+#input_6_full {
+  width: 19.375rem !important;
+  max-width: 100% !important;
+}
+
+#input_7 {
+  width: 40.5rem !important;
+  max-width: 100% !important;
+  height: 10.1875rem !important;
+}
+
+#input_6_full_label {
+  border: 0 !important;
+  clip: rect(0, 0, 0, 0) !important;
+  height: 0.0625rem !important;
+  margin: -0.0625rem !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  position: absolute !important;
+  width: 0.0625rem !important;
+  white-space: nowrap !important;
+}
+
+ul.form-section.page-section > li:last-child {
+  display: none !important;
+}
+
 /* Begining of advanced designer */
 /*PREFERENCES STYLE*/
 /*  1 - Preferences style */
