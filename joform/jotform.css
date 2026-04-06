@@ -1,6 +1,5 @@
 /* Injected CSS Code */
 
-
 #cid_1 {
   display: none !important;
 }
@@ -27,8 +26,8 @@
 
 /* From Get_in_Touch.html: inline style="" on elements (px → rem, 16px = 1rem) */
 /* Use [data-payment="true"] (quoted). [data-payment=true] is invalid in CSS and can drop the whole rule. */
-.form-all li.form-line:not([data-payment="true"]) div[role="group"][data-wrapper-react],
-.form-all li.form-line:not([data-payment="true"]) [data-wrapper-react="true"] {
+li.form-line:not([data-payment="true"]) div[role="group"][data-wrapper-react],
+li.form-line:not([data-payment="true"]) [data-wrapper-react="true"] {
   display: flex !important;
   flex-direction: column !important;
   align-items: stretch !important;
