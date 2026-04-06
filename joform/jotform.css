@@ -26,9 +26,13 @@
 }
 
 /* From Get_in_Touch.html: inline style="" on elements (px → rem, 16px = 1rem) */
-li.form-line:not([data-payment="true"]) [data-wrapper-react="true"] {
+/* Use [data-payment="true"] (quoted). [data-payment=true] is invalid in CSS and can drop the whole rule. */
+.form-all li.form-line:not([data-payment="true"]) div[role="group"][data-wrapper-react],
+.form-all li.form-line:not([data-payment="true"]) [data-wrapper-react="true"] {
   display: flex !important;
   flex-direction: column !important;
+  align-items: stretch !important;
+  row-gap: 1rem !important;
 }
 
 .form-sub-label-container {
@@ -315,6 +319,17 @@ ul.form-section {
 .form-radio + span:before {
   border-radius: 50% !important;
   transition: border-color 0.15s !important;
+}
+
+.form-radio + label:after,
+.form-radio + label div:after,
+.form-radio + span:after,
+.form-radio + span div:after {
+  top: 0.1875rem !important;
+  left: 0.1875rem !important;
+  width: 0.875rem !important;
+  height: 0.875rem !important;
+  background-color: #808eff !important;
 }
 
 .form-line .form-checkbox:checked + label:before,
