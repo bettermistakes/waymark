@@ -350,10 +350,43 @@
     items.forEach((item) => {
       const element = item.template.cloneNode(true);
       element.dataset.blogTags = item.tags.map(normalizeTag).filter(Boolean).join("|");
+      formatBlogCardAuthors(element);
       fragment.appendChild(element);
     });
 
     list.replaceChildren(fragment);
+  }
+
+  function formatAuthorNames(names) {
+    if (names.length <= 1) return names[0] || "";
+    if (names.length === 2) return `${names[0]} and ${names[1]}`;
+
+    return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+  }
+
+  function formatBlogCardAuthors(cardItem) {
+    const authorItems = $all(".blog--card-bottom .flex-horizontal.is-gap-4 .w-dyn-list .w-dyn-item", cardItem);
+    if (authorItems.length <= 1) return;
+
+    const authorNames = authorItems
+      .map((authorItem) => normalizeWhitespace(authorItem.textContent))
+      .filter(Boolean);
+
+    if (authorNames.length <= 1) return;
+
+    const authorList = $(".blog--card-bottom .flex-horizontal.is-gap-4 .w-dyn-list .w-dyn-items", cardItem);
+    if (!authorList) return;
+
+    const authorParagraph = document.createElement("p");
+    authorParagraph.className = "body-13";
+    authorParagraph.textContent = formatAuthorNames(authorNames);
+
+    const authorListItem = document.createElement("div");
+    authorListItem.className = "w-dyn-item";
+    authorListItem.setAttribute("role", "listitem");
+    authorListItem.appendChild(authorParagraph);
+
+    authorList.replaceChildren(authorListItem);
   }
 
   function getFilteredItems(items, activeFilter) {
