@@ -163,6 +163,10 @@ li.form-line:not(.form-line-column)[data-type="control_fullname"]
   margin: 0 !important;
 }
 
+li[data-type="control_fullname"] .form-sub-label-container {
+  min-width: 100% !important;
+}
+
 .supernova .form-all,
 .form-all {
   background-color: transparent !important;
