@@ -467,7 +467,15 @@
 
     filterButton.setAttribute("aria-haspopup", "true");
     filterButton.setAttribute("aria-expanded", "false");
+    filterRoot.classList.remove("is-open");
     filterContent.hidden = true;
+    filterContent.style.height = "";
+    filterContent.style.opacity = "";
+    filterContent.style.overflow = "";
+
+    if (filterArrow) {
+      filterArrow.style.transform = "rotate(0deg)";
+    }
 
     filterButton.addEventListener("click", (event) => {
       event.preventDefault();
