@@ -362,6 +362,10 @@
     return items.filter((item) => item.tags.some((tag) => normalizeTag(tag) === activeFilter));
   }
 
+  function getItemsSignature(items) {
+    return items.map((item) => item.url || "").join("||");
+  }
+
   function initFilterDropdown(state) {
     const filterRoot = $(FILTER_ROOT_SELECTOR);
     const filterButton = $(FILTER_BUTTON_SELECTOR, filterRoot);
@@ -628,16 +632,20 @@
         currentPage: 1,
         items: items,
         itemsPerPage: result.itemsPerPage,
+        lastRenderedSignature: "",
         tagOptions: [],
         tagsLoading: true,
         renderChain: Promise.resolve(),
         totalPages: 1,
-        render: function render(reason) {
+        render: function render(reason, options) {
+          const renderOptions = Object.assign({ animate: true }, options);
+
           debugLog("render queued", {
             reason: reason || "unspecified",
             activeFilter: state.activeFilter || "all",
             currentPage: state.currentPage,
             tagOptionCount: state.tagOptions.length,
+            animate: renderOptions.animate,
           });
 
           state.renderChain = state.renderChain
@@ -649,6 +657,8 @@
 
               const startIndex = (state.currentPage - 1) * state.itemsPerPage;
               const pageItems = filteredItems.slice(startIndex, startIndex + state.itemsPerPage);
+              const pageSignature = getItemsSignature(pageItems);
+              const signatureChanged = pageSignature !== state.lastRenderedSignature;
 
               debugLog("render start", {
                 reason: reason || "unspecified",
@@ -656,10 +666,29 @@
                 pageItemCount: pageItems.length,
                 currentPage: state.currentPage,
                 totalPages: state.totalPages,
+                signatureChanged,
+                animate: renderOptions.animate,
               });
 
               paginationApi.render();
-              await transitionList(list, pageItems);
+
+              if (!signatureChanged) {
+                debugLog("render skipped list transition", {
+                  reason: reason || "unspecified",
+                });
+                return;
+              }
+
+              if (renderOptions.animate) {
+                await transitionList(list, pageItems);
+              } else {
+                debugLog("render replacing list without animation", {
+                  reason: reason || "unspecified",
+                });
+                replaceCollectionItems(list, pageItems);
+              }
+
+              state.lastRenderedSignature = pageSignature;
             });
 
           return state.renderChain;
@@ -677,7 +706,17 @@
           fromCache,
           tagOptionCount: tagOptions.length,
         });
-        state.render(fromCache ? "tag-update-cache" : "tag-update-network");
+
+        if (state.activeFilter) {
+          state.render(fromCache ? "tag-update-cache" : "tag-update-network", {
+            animate: false,
+          });
+        } else {
+          debugLog("tag update skipped list render", {
+            reason: fromCache ? "tag-update-cache" : "tag-update-network",
+            activeFilter: "all",
+          });
+        }
 
         if (fromCache && tagOptions.length) {
           filterApi.setLoading(false);
@@ -690,7 +729,14 @@
         debugLog("tag loading complete", {
           tagOptionCount: tagOptions.length,
         });
-        state.render("tag-loading-complete");
+
+        if (state.activeFilter) {
+          state.render("tag-loading-complete", { animate: false });
+        } else {
+          debugLog("tag loading complete skipped list render", {
+            activeFilter: "all",
+          });
+        }
       }).catch((error) => {
         console.error("Failed to load blog tags.", error);
         state.tagsLoading = false;
