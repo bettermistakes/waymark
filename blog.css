@@ -45,3 +45,8 @@
 .filter--content {
   display: none;
 }
+
+.filter--parent.is-open {
+  position: relative;
+  z-index: 10;
+}
