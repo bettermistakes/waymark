@@ -392,6 +392,7 @@
 
       if (prefersReducedMotion() || typeof filterContent.animate !== "function") {
         filterContent.hidden = !isOpen;
+        filterContent.style.display = isOpen ? "block" : "none";
         filterContent.style.height = "";
         filterContent.style.opacity = "";
         filterContent.style.overflow = "";
@@ -406,6 +407,7 @@
       filterContent.style.overflow = "hidden";
       if (isOpen) {
         filterContent.hidden = false;
+        filterContent.style.display = "block";
       }
 
       const currentHeight = filterContent.getBoundingClientRect().height;
@@ -446,6 +448,7 @@
 
       if (!isOpen) {
         filterContent.hidden = true;
+        filterContent.style.display = "none";
       }
 
       filterContent.style.height = "";
@@ -510,6 +513,7 @@
     filterButton.setAttribute("aria-expanded", "false");
     filterRoot.classList.remove("is-open");
     filterContent.hidden = true;
+    filterContent.style.display = "none";
     filterContent.style.height = "";
     filterContent.style.opacity = "";
     filterContent.style.overflow = "";
