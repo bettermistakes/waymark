@@ -398,7 +398,7 @@
         filterContent.style.overflow = "";
 
         if (filterArrow) {
-          filterArrow.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
+          filterArrow.style.transform = isOpen ? "rotate(0deg)" : "rotate(180deg)";
         }
 
         return;
@@ -435,7 +435,7 @@
           ? finishAnimation(filterArrow.animate(
             [
               { transform: isOpen ? "rotate(0deg)" : "rotate(180deg)" },
-              { transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" },
+              { transform: isOpen ? "rotate(0deg)" : "rotate(180deg)" },
             ],
             {
               duration: DROPDOWN_DURATION_MS,
@@ -456,7 +456,7 @@
       filterContent.style.overflow = "";
 
       if (filterArrow) {
-        filterArrow.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
+        filterArrow.style.transform = isOpen ? "rotate(0deg)" : "rotate(180deg)";
       }
     }
 
@@ -519,7 +519,7 @@
     filterContent.style.overflow = "";
 
     if (filterArrow) {
-      filterArrow.style.transform = "rotate(0deg)";
+      filterArrow.style.transform = "rotate(180deg)";
     }
 
     filterButton.addEventListener("click", (event) => {
