@@ -18,6 +18,8 @@
   const CLIENT_PAGE_SIZE = 9;
   const MAX_PAGE_COUNT = 100;
   const DETAIL_FETCH_CONCURRENCY = 6;
+  const TAG_CACHE_KEY = "waymark-blog-tag-cache-v1";
+  const TAG_CACHE_TTL_MS = 1000 * 60 * 60 * 12;
 
   function $(selector, root) {
     return (root || document).querySelector(selector);
@@ -37,6 +39,29 @@
 
   function normalizeTag(value) {
     return normalizeWhitespace(value).toLowerCase();
+  }
+
+  function getTagOptionsFromMap(tagMap) {
+    return Array.from(tagMap.entries())
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }
+
+  function readTagCache() {
+    try {
+      const raw = window.localStorage.getItem(TAG_CACHE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (_error) {
+      return {};
+    }
+  }
+
+  function writeTagCache(cache) {
+    try {
+      window.localStorage.setItem(TAG_CACHE_KEY, JSON.stringify(cache));
+    } catch (_error) {
+      // Ignore storage failures.
+    }
   }
 
   function toAbsoluteUrl(url) {
@@ -161,10 +186,39 @@
     await Promise.all(workers);
   }
 
-  async function populateTags(items) {
+  async function populateTags(items, onUpdate) {
     const allTags = new Map();
+    const tagCache = readTagCache();
+    const now = Date.now();
+    const pendingItems = [];
 
-    await runWithConcurrency(items, DETAIL_FETCH_CONCURRENCY, async (item) => {
+    items.forEach((item) => {
+      if (!item.url) {
+        pendingItems.push(item);
+        return;
+      }
+
+      const cachedEntry = tagCache[item.url];
+      const isFresh = cachedEntry && now - cachedEntry.timestamp < TAG_CACHE_TTL_MS;
+
+      if (!isFresh || !Array.isArray(cachedEntry.tags)) {
+        pendingItems.push(item);
+        return;
+      }
+
+      item.tags = cachedEntry.tags;
+      cachedEntry.tags.forEach((tag) => {
+        const normalized = normalizeTag(tag);
+        if (!normalized || allTags.has(normalized)) return;
+        allTags.set(normalized, tag);
+      });
+    });
+
+    if (onUpdate) {
+      onUpdate(getTagOptionsFromMap(allTags), true);
+    }
+
+    await runWithConcurrency(pendingItems, DETAIL_FETCH_CONCURRENCY, async (item) => {
       if (!item.url) return;
 
       const detailDoc = await fetchDocument(item.url);
@@ -172,17 +226,28 @@
 
       const tags = extractTagsFromDocument(detailDoc);
       item.tags = tags;
+      tagCache[item.url] = {
+        tags: tags,
+        timestamp: Date.now(),
+      };
+
+      let didAddTag = false;
 
       tags.forEach((tag) => {
         const normalized = normalizeTag(tag);
         if (!normalized || allTags.has(normalized)) return;
         allTags.set(normalized, tag);
+        didAddTag = true;
       });
+
+      writeTagCache(tagCache);
+
+      if (didAddTag && onUpdate) {
+        onUpdate(getTagOptionsFromMap(allTags), false);
+      }
     });
 
-    return Array.from(allTags.entries())
-      .map(([value, label]) => ({ value, label }))
-      .sort((a, b) => a.label.localeCompare(b.label));
+    return getTagOptionsFromMap(allTags);
   }
 
   function replaceCollectionItems(list, items) {
@@ -203,7 +268,7 @@
     return items.filter((item) => item.tags.some((tag) => normalizeTag(tag) === activeFilter));
   }
 
-  function initFilterDropdown(tagOptions, state) {
+  function initFilterDropdown(state) {
     const filterRoot = $(FILTER_ROOT_SELECTOR);
     const filterButton = $(FILTER_BUTTON_SELECTOR, filterRoot);
     const filterButtonLabel = $(FILTER_BUTTON_LABEL_SELECTOR, filterRoot);
@@ -213,8 +278,11 @@
 
     if (!filterRoot || !filterButton || !filterContent || !filterContentInner) return;
 
-    const options = [{ value: "", label: "All" }].concat(tagOptions);
     let isOpen = false;
+
+    function getOptions() {
+      return [{ value: "", label: "All" }].concat(state.tagOptions);
+    }
 
     function setOpen(nextOpen) {
       isOpen = nextOpen;
@@ -226,10 +294,13 @@
     function updateButtonLabel() {
       if (!filterButtonLabel) return;
 
-      const activeOption = options.find((option) => option.value === state.activeFilter);
-      filterButtonLabel.textContent = activeOption && activeOption.value
-        ? `Filter by: ${activeOption.label}`
-        : "Filter by";
+      const activeOption = getOptions().find((option) => option.value === state.activeFilter);
+      if (activeOption && activeOption.value) {
+        filterButtonLabel.textContent = `Filter by: ${activeOption.label}`;
+        return;
+      }
+
+      filterButtonLabel.textContent = state.tagsLoading ? "Loading filters..." : "Filter by";
     }
 
     function createFilterOption(option) {
@@ -260,7 +331,10 @@
       return element;
     }
 
-    filterContentInner.replaceChildren(...options.map((option) => createFilterOption(option)));
+    function renderOptions() {
+      filterContentInner.replaceChildren(...getOptions().map((option) => createFilterOption(option)));
+      updateButtonLabel();
+    }
 
     filterButton.setAttribute("aria-haspopup", "true");
     filterButton.setAttribute("aria-expanded", "false");
@@ -283,7 +357,15 @@
       }
     });
 
-    updateButtonLabel();
+    renderOptions();
+
+    return {
+      renderOptions,
+      setLoading: function setLoading(nextLoading) {
+        state.tagsLoading = nextLoading;
+        updateButtonLabel();
+      },
+    };
   }
 
   function initPagination(state) {
@@ -362,6 +444,8 @@
         currentPage: 1,
         items: items,
         itemsPerPage: result.itemsPerPage,
+        tagOptions: [],
+        tagsLoading: true,
         totalPages: 1,
         render: function render() {
           const filteredItems = getFilteredItems(state.items, state.activeFilter);
@@ -377,20 +461,28 @@
       };
 
       const paginationApi = initPagination(state);
+      const filterApi = initFilterDropdown(state);
       state.render();
 
-      populateTags(items)
-        .then((tagOptions) => {
-          initFilterDropdown(tagOptions, state);
-          state.render();
-        })
-        .catch((error) => {
-          console.error("Failed to load blog tags.", error);
+      populateTags(items, function handleTagUpdate(tagOptions, fromCache) {
+        state.tagOptions = tagOptions;
+        filterApi.renderOptions();
+        state.render();
 
-          if (filterButtonLabel) {
-            filterButtonLabel.textContent = "Filter by";
-          }
-        });
+        if (fromCache && tagOptions.length) {
+          filterApi.setLoading(false);
+        }
+      }).then((tagOptions) => {
+        state.tagOptions = tagOptions;
+        state.tagsLoading = false;
+        filterApi.renderOptions();
+        filterApi.setLoading(false);
+        state.render();
+      }).catch((error) => {
+        console.error("Failed to load blog tags.", error);
+        state.tagsLoading = false;
+        filterApi.setLoading(false);
+      });
     } catch (error) {
       console.error("Failed to rebuild blog list.", error);
 
