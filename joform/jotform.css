@@ -34,6 +34,11 @@ li.form-line:not([data-payment="true"]) [data-wrapper-react="true"] {
   row-gap: 1rem !important;
 }
 
+.form-all li.form-line[data-type="control_fullname"] [data-wrapper-react="true"],
+li[data-type="control_fullname"] [data-wrapper-react="true"] {
+  flex-wrap: wrap !important;
+}
+
 .form-sub-label-container {
   vertical-align: top !important;
   width: 100% !important;
