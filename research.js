@@ -90,13 +90,23 @@
     return tags;
   }
 
+  function extractSourceFromItem(item) {
+    const sourceNode = $(`${CARD_SELECTOR} .body-13`, item);
+    const sourceText = normalizeWhitespace(sourceNode?.textContent);
+    const sourceLabel = normalizeWhitespace(sourceText.split(",")[0]);
+
+    return sourceLabel;
+  }
+
   function collectResearchItems(list) {
     const rawItems = Array.from(list.children).filter((child) => child.matches(ITEM_SELECTOR));
     const tagMap = new Map();
+    const sourceMap = new Map();
 
     const items = rawItems.map((item, index) => {
       const template = item.cloneNode(true);
       const tags = extractTagsFromItem(item);
+      const source = extractSourceFromItem(item);
 
       tags.forEach((tag) => {
         const normalized = normalizeTag(tag);
@@ -104,16 +114,23 @@
         tagMap.set(normalized, tag);
       });
 
+      const normalizedSource = normalizeTag(source);
+      if (normalizedSource && !sourceMap.has(normalizedSource)) {
+        sourceMap.set(normalizedSource, source);
+      }
+
       return {
         id: String(index),
         template,
         tags,
+        source,
         order: index,
       };
     });
 
     return {
       items,
+      sourceOptions: getFilterOptionsFromMap(sourceMap),
       tagOptions: getFilterOptionsFromMap(tagMap),
     };
   }
@@ -177,14 +194,12 @@
   function getFilteredAndSortedItems(state) {
     let items = state.items.slice();
 
-    if (state.activeFilter) {
-      items = items.filter((item) => item.tags.some((tag) => normalizeTag(tag) === state.activeFilter));
+    if (state.activeSource) {
+      items = items.filter((item) => normalizeTag(item.source) === state.activeSource);
     }
 
-    if (state.activeSort === "oldest") {
-      items.sort((a, b) => a.order - b.order);
-    } else {
-      items.sort((a, b) => b.order - a.order);
+    if (state.activeFilter) {
+      items = items.filter((item) => item.tags.some((tag) => normalizeTag(tag) === state.activeFilter));
     }
 
     return items;
@@ -391,12 +406,12 @@
     if (list.dataset.researchFeedMounted === "1") return;
     list.dataset.researchFeedMounted = "1";
 
-    const { items, tagOptions } = collectResearchItems(list);
+    const { items, sourceOptions, tagOptions } = collectResearchItems(list);
     if (!items.length) return;
 
     const state = {
       activeFilter: "",
-      activeSort: "newest",
+      activeSource: "",
       currentPage: 1,
       items,
       totalPages: 1,
@@ -439,27 +454,22 @@
     const sortApi = initDropdown(
       sortParent,
       function getSortOptions() {
-        return [
-          {
-            value: "newest",
-            label: "Newest",
-            activeValue: state.activeSort,
-          },
-          {
-            value: "oldest",
-            label: "Oldest",
-            activeValue: state.activeSort,
-          },
-        ];
+        return [{ value: "", label: "All", activeValue: state.activeSource }].concat(
+          sourceOptions.map((option) => ({
+            value: option.value,
+            label: option.label,
+            activeValue: state.activeSource,
+          }))
+        );
       },
       state,
       function handleSortChange(value, label) {
-        state.activeSort = value;
+        state.activeSource = value;
         state.currentPage = 1;
 
         const labelNode = $(FILTER_BUTTON_LABEL_SELECTOR, sortParent);
         if (labelNode) {
-          labelNode.textContent = `Sort by: ${label}`;
+          labelNode.textContent = value ? `Sort by: ${label}` : "Sort by";
         }
 
         sortApi.renderOptions();
