@@ -7,6 +7,7 @@
   const FILTER_ROOT_SELECTOR = ".filter--parent";
   const FILTER_BUTTON_SELECTOR = ".filter--btn";
   const FILTER_BUTTON_LABEL_SELECTOR = ".filter--btn > div";
+  const FILTER_ARROW_SELECTOR = ".filter--arrow";
   const FILTER_CONTENT_SELECTOR = ".filter--content";
   const FILTER_CONTENT_INNER_SELECTOR = ".filter--content-inner";
   const FILTER_TAG_SELECTOR = ".filter--tag";
@@ -20,6 +21,8 @@
   const DETAIL_FETCH_CONCURRENCY = 6;
   const TAG_CACHE_KEY = "waymark-blog-tag-cache-v1";
   const TAG_CACHE_TTL_MS = 1000 * 60 * 60 * 12;
+  const FADE_DURATION_MS = 180;
+  const DROPDOWN_DURATION_MS = 220;
 
   function $(selector, root) {
     return (root || document).querySelector(selector);
@@ -70,6 +73,64 @@
     } catch (_error) {
       return "";
     }
+  }
+
+  function prefersReducedMotion() {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+
+  async function finishAnimation(animation) {
+    if (!animation) return;
+
+    try {
+      await animation.finished;
+    } catch (_error) {
+      // Ignore canceled animations.
+    }
+  }
+
+  async function transitionList(list, items) {
+    const canAnimate = !prefersReducedMotion() && typeof list.animate === "function";
+    const hasExistingItems = list.children.length > 0;
+
+    if (!canAnimate) {
+      replaceCollectionItems(list, items);
+      return;
+    }
+
+    if (hasExistingItems) {
+      await finishAnimation(list.animate(
+        [
+          { opacity: 1, transform: "translateY(0px)" },
+          { opacity: 0, transform: "translateY(10px)" },
+        ],
+        {
+          duration: FADE_DURATION_MS,
+          easing: "ease",
+          fill: "forwards",
+        }
+      ));
+    }
+
+    replaceCollectionItems(list, items);
+
+    list.style.opacity = "0";
+    list.style.transform = "translateY(10px)";
+
+    await finishAnimation(list.animate(
+      [
+        { opacity: 0, transform: "translateY(10px)" },
+        { opacity: 1, transform: "translateY(0px)" },
+      ],
+      {
+        duration: FADE_DURATION_MS,
+        easing: "ease",
+        fill: "forwards",
+      }
+    ));
+
+    list.style.opacity = "";
+    list.style.transform = "";
   }
 
   async function fetchDocument(url) {
@@ -272,6 +333,7 @@
     const filterRoot = $(FILTER_ROOT_SELECTOR);
     const filterButton = $(FILTER_BUTTON_SELECTOR, filterRoot);
     const filterButtonLabel = $(FILTER_BUTTON_LABEL_SELECTOR, filterRoot);
+    const filterArrow = $(FILTER_ARROW_SELECTOR, filterRoot);
     const filterContent = $(FILTER_CONTENT_SELECTOR, filterRoot);
     const filterContentInner = $(FILTER_CONTENT_INNER_SELECTOR, filterRoot);
     const filterTagTemplate = $(FILTER_TAG_SELECTOR, filterRoot);
@@ -284,11 +346,78 @@
       return [{ value: "", label: "All" }].concat(state.tagOptions);
     }
 
-    function setOpen(nextOpen) {
+    async function setOpen(nextOpen) {
+      if (isOpen === nextOpen) return;
+
       isOpen = nextOpen;
       filterRoot.classList.toggle("is-open", isOpen);
-      filterContent.hidden = !isOpen;
       filterButton.setAttribute("aria-expanded", String(isOpen));
+
+      if (prefersReducedMotion() || typeof filterContent.animate !== "function") {
+        filterContent.hidden = !isOpen;
+        filterContent.style.height = "";
+        filterContent.style.opacity = "";
+        filterContent.style.overflow = "";
+
+        if (filterArrow) {
+          filterArrow.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
+        }
+
+        return;
+      }
+
+      filterContent.style.overflow = "hidden";
+      if (isOpen) {
+        filterContent.hidden = false;
+      }
+
+      const currentHeight = filterContent.getBoundingClientRect().height;
+      const targetHeight = isOpen ? filterContentInner.scrollHeight : 0;
+
+      await Promise.all([
+        finishAnimation(filterContent.animate(
+          [
+            {
+              height: `${currentHeight}px`,
+              opacity: isOpen ? 0 : 1,
+            },
+            {
+              height: `${targetHeight}px`,
+              opacity: isOpen ? 1 : 0,
+            },
+          ],
+          {
+            duration: DROPDOWN_DURATION_MS,
+            easing: "ease",
+            fill: "forwards",
+          }
+        )),
+        filterArrow && typeof filterArrow.animate === "function"
+          ? finishAnimation(filterArrow.animate(
+            [
+              { transform: isOpen ? "rotate(0deg)" : "rotate(180deg)" },
+              { transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" },
+            ],
+            {
+              duration: DROPDOWN_DURATION_MS,
+              easing: "ease",
+              fill: "forwards",
+            }
+          ))
+          : Promise.resolve(),
+      ]);
+
+      if (!isOpen) {
+        filterContent.hidden = true;
+      }
+
+      filterContent.style.height = "";
+      filterContent.style.opacity = "";
+      filterContent.style.overflow = "";
+
+      if (filterArrow) {
+        filterArrow.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
+      }
     }
 
     function updateButtonLabel() {
@@ -325,7 +454,7 @@
 
         updateButtonLabel();
         state.render();
-        setOpen(false);
+        void setOpen(false);
       });
 
       return element;
@@ -342,18 +471,18 @@
 
     filterButton.addEventListener("click", (event) => {
       event.preventDefault();
-      setOpen(!isOpen);
+      void setOpen(!isOpen);
     });
 
     document.addEventListener("click", (event) => {
       if (!filterRoot.contains(event.target)) {
-        setOpen(false);
+        void setOpen(false);
       }
     });
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
-        setOpen(false);
+        void setOpen(false);
       }
     });
 
@@ -446,17 +575,24 @@
         itemsPerPage: result.itemsPerPage,
         tagOptions: [],
         tagsLoading: true,
+        renderChain: Promise.resolve(),
         totalPages: 1,
         render: function render() {
-          const filteredItems = getFilteredItems(state.items, state.activeFilter);
-          state.totalPages = Math.max(1, Math.ceil(filteredItems.length / state.itemsPerPage));
-          state.currentPage = Math.min(state.currentPage, state.totalPages);
+          state.renderChain = state.renderChain
+            .catch(function ignoreRenderError() {})
+            .then(async function runRender() {
+              const filteredItems = getFilteredItems(state.items, state.activeFilter);
+              state.totalPages = Math.max(1, Math.ceil(filteredItems.length / state.itemsPerPage));
+              state.currentPage = Math.min(state.currentPage, state.totalPages);
 
-          const startIndex = (state.currentPage - 1) * state.itemsPerPage;
-          const pageItems = filteredItems.slice(startIndex, startIndex + state.itemsPerPage);
+              const startIndex = (state.currentPage - 1) * state.itemsPerPage;
+              const pageItems = filteredItems.slice(startIndex, startIndex + state.itemsPerPage);
 
-          replaceCollectionItems(list, pageItems);
-          paginationApi.render();
+              paginationApi.render();
+              await transitionList(list, pageItems);
+            });
+
+          return state.renderChain;
         },
       };
 
