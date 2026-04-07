@@ -3,13 +3,16 @@
 
   const BLOG_LIST_SELECTOR = ".blog--collection-list.is--filters";
   const BLOG_ITEM_SELECTOR = ".w-dyn-item";
-  const BLOG_CARD_SELECTOR = ".blog-card";
   const FILTER_ROOT_SELECTOR = ".filter--parent";
   const FILTER_BUTTON_SELECTOR = ".filter--btn";
   const FILTER_BUTTON_LABEL_SELECTOR = ".filter--btn > div";
   const FILTER_CONTENT_SELECTOR = ".filter--content";
   const FILTER_CONTENT_INNER_SELECTOR = ".filter--content-inner";
   const FILTER_TAG_SELECTOR = ".filter--tag";
+  const PAGINATION_SELECTOR = ".blog--pagination";
+  const PAGINATION_PREV_SELECTOR = ".arrow--pagination.is--prev";
+  const PAGINATION_NEXT_SELECTOR = ".arrow--pagination.is--next";
+  const PAGINATION_DOTS_SELECTOR = ".pagination--dots-wrapper";
   const TAGS_WRAPPER_SELECTOR = ".tags-wrapper";
   const MAX_PAGE_COUNT = 100;
   const DETAIL_FETCH_CONCURRENCY = 6;
@@ -83,6 +86,7 @@
   async function collectAllBlogItems() {
     const items = [];
     const seenKeys = new Set();
+    let itemsPerPage = 0;
 
     for (let page = 1; page <= MAX_PAGE_COUNT; page += 1) {
       const pageDoc = await fetchDocument(`/blogs/${page}`);
@@ -90,6 +94,7 @@
 
       const pageItems = getCollectionItems(pageDoc);
       if (!pageItems.length) break;
+      if (!itemsPerPage) itemsPerPage = pageItems.length;
 
       pageItems.forEach((pageItem, index) => {
         const importedItem = document.importNode(pageItem, true);
@@ -100,14 +105,17 @@
         seenKeys.add(itemKey);
 
         items.push({
-          element: importedItem,
+          template: importedItem,
           url: itemUrl,
           tags: [],
         });
       });
     }
 
-    return items;
+    return {
+      items,
+      itemsPerPage: itemsPerPage || items.length || 1,
+    };
   }
 
   function extractTagsFromDocument(doc) {
@@ -172,29 +180,25 @@
       .sort((a, b) => a.label.localeCompare(b.label));
   }
 
-  function attachTagsToItems(items) {
-    items.forEach((item) => {
-      const normalizedTags = item.tags.map(normalizeTag).filter(Boolean);
-      item.element.dataset.blogTags = normalizedTags.join("|");
-    });
-  }
-
   function replaceCollectionItems(list, items) {
     const fragment = document.createDocumentFragment();
 
     items.forEach((item) => {
-      fragment.appendChild(item.element);
+      const element = item.template.cloneNode(true);
+      element.dataset.blogTags = item.tags.map(normalizeTag).filter(Boolean).join("|");
+      fragment.appendChild(element);
     });
 
     list.replaceChildren(fragment);
   }
 
-  function setItemVisibility(item, isVisible) {
-    item.hidden = !isVisible;
-    item.style.display = isVisible ? "" : "none";
+  function getFilteredItems(items, activeFilter) {
+    if (!activeFilter) return items.slice();
+
+    return items.filter((item) => item.tags.some((tag) => normalizeTag(tag) === activeFilter));
   }
 
-  function initFilterDropdown(list, tagOptions) {
+  function initFilterDropdown(tagOptions, state) {
     const filterRoot = $(FILTER_ROOT_SELECTOR);
     const filterButton = $(FILTER_BUTTON_SELECTOR, filterRoot);
     const filterButtonLabel = $(FILTER_BUTTON_LABEL_SELECTOR, filterRoot);
@@ -202,13 +206,9 @@
     const filterContentInner = $(FILTER_CONTENT_INNER_SELECTOR, filterRoot);
     const filterTagTemplate = $(FILTER_TAG_SELECTOR, filterRoot);
 
-    if (!filterRoot || !filterButton || !filterContent || !filterContentInner || !list) {
-      return;
-    }
+    if (!filterRoot || !filterButton || !filterContent || !filterContentInner) return;
 
-    const listItems = getDirectListItems(list);
     const options = [{ value: "", label: "All" }].concat(tagOptions);
-    let activeFilter = "";
     let isOpen = false;
 
     function setOpen(nextOpen) {
@@ -221,18 +221,10 @@
     function updateButtonLabel() {
       if (!filterButtonLabel) return;
 
-      const activeOption = options.find((option) => option.value === activeFilter);
+      const activeOption = options.find((option) => option.value === state.activeFilter);
       filterButtonLabel.textContent = activeOption && activeOption.value
         ? `Filter by: ${activeOption.label}`
         : "Filter by";
-    }
-
-    function applyFilter() {
-      listItems.forEach((listItem) => {
-        const itemTags = (listItem.dataset.blogTags || "").split("|").filter(Boolean);
-        const isVisible = !activeFilter || itemTags.includes(activeFilter);
-        setItemVisibility(listItem, isVisible);
-      });
     }
 
     function createFilterOption(option) {
@@ -244,18 +236,19 @@
       element.textContent = option.label;
       element.setAttribute("href", "#");
       element.dataset.filterValue = option.value;
-      element.classList.toggle("is-active", option.value === activeFilter);
+      element.classList.toggle("is-active", option.value === state.activeFilter);
 
       element.addEventListener("click", (event) => {
         event.preventDefault();
-        activeFilter = option.value;
+        state.activeFilter = option.value;
+        state.currentPage = 1;
 
         $all(FILTER_TAG_SELECTOR, filterContentInner).forEach((tagElement) => {
-          tagElement.classList.toggle("is-active", tagElement.dataset.filterValue === activeFilter);
+          tagElement.classList.toggle("is-active", tagElement.dataset.filterValue === state.activeFilter);
         });
 
         updateButtonLabel();
-        applyFilter();
+        state.render();
         setOpen(false);
       });
 
@@ -286,7 +279,57 @@
     });
 
     updateButtonLabel();
-    applyFilter();
+  }
+
+  function initPagination(state) {
+    const pagination = $(PAGINATION_SELECTOR);
+    const prevButton = $(PAGINATION_PREV_SELECTOR, pagination);
+    const nextButton = $(PAGINATION_NEXT_SELECTOR, pagination);
+    const dotsWrapper = $(PAGINATION_DOTS_SELECTOR, pagination);
+
+    if (!pagination || !prevButton || !nextButton || !dotsWrapper) {
+      return {
+        render: function renderPaginationFallback() {},
+      };
+    }
+
+    function createDot(pageNumber) {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "pagination--dot";
+      dot.textContent = String(pageNumber);
+      dot.classList.toggle("is-active", pageNumber === state.currentPage);
+      dot.addEventListener("click", () => {
+        state.currentPage = pageNumber;
+        state.render();
+      });
+      return dot;
+    }
+
+    prevButton.addEventListener("click", () => {
+      if (state.currentPage <= 1) return;
+      state.currentPage -= 1;
+      state.render();
+    });
+
+    nextButton.addEventListener("click", () => {
+      if (state.currentPage >= state.totalPages) return;
+      state.currentPage += 1;
+      state.render();
+    });
+
+    return {
+      render: function renderPagination() {
+        pagination.hidden = state.totalPages <= 1;
+        prevButton.classList.toggle("is-disabled", state.currentPage <= 1);
+        nextButton.classList.toggle("is-disabled", state.currentPage >= state.totalPages);
+        dotsWrapper.replaceChildren(
+          ...Array.from({ length: state.totalPages }, function makeDot(_, index) {
+            return createDot(index + 1);
+          })
+        );
+      },
+    };
   }
 
   async function initBlogFeed() {
@@ -294,22 +337,44 @@
     const filterButtonLabel = $(FILTER_BUTTON_LABEL_SELECTOR);
 
     if (!list) return;
+    if (list.dataset.blogFeedMounted === "1") return;
+    list.dataset.blogFeedMounted = "1";
 
     if (filterButtonLabel) {
       filterButtonLabel.textContent = "Loading...";
     }
 
     try {
-      const items = await collectAllBlogItems();
+      const result = await collectAllBlogItems();
+      const items = result.items;
       if (!items.length) {
         if (filterButtonLabel) filterButtonLabel.textContent = "Filter by";
         return;
       }
 
       const tagOptions = await populateTags(items);
-      attachTagsToItems(items);
-      replaceCollectionItems(list, items);
-      initFilterDropdown(list, tagOptions);
+      const state = {
+        activeFilter: "",
+        currentPage: 1,
+        items: items,
+        itemsPerPage: result.itemsPerPage,
+        totalPages: 1,
+        render: function render() {
+          const filteredItems = getFilteredItems(state.items, state.activeFilter);
+          state.totalPages = Math.max(1, Math.ceil(filteredItems.length / state.itemsPerPage));
+          state.currentPage = Math.min(state.currentPage, state.totalPages);
+
+          const startIndex = (state.currentPage - 1) * state.itemsPerPage;
+          const pageItems = filteredItems.slice(startIndex, startIndex + state.itemsPerPage);
+
+          replaceCollectionItems(list, pageItems);
+          paginationApi.render();
+        },
+      };
+
+      const paginationApi = initPagination(state);
+      initFilterDropdown(tagOptions, state);
+      state.render();
     } catch (error) {
       console.error("Failed to rebuild blog list.", error);
 
