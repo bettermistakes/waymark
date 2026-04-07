@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const BLOG_LIST_SELECTOR = ".blog--collection-list";
+  const BLOG_LIST_SELECTOR = ".blog--collection-list.is--filters";
   const BLOG_ITEM_SELECTOR = ".w-dyn-item";
   const BLOG_CARD_SELECTOR = ".blog-card";
   const FILTER_ROOT_SELECTOR = ".filter--parent";
@@ -194,14 +194,13 @@
     item.style.display = isVisible ? "" : "none";
   }
 
-  function initFilterDropdown(tagOptions) {
+  function initFilterDropdown(list, tagOptions) {
     const filterRoot = $(FILTER_ROOT_SELECTOR);
     const filterButton = $(FILTER_BUTTON_SELECTOR, filterRoot);
     const filterButtonLabel = $(FILTER_BUTTON_LABEL_SELECTOR, filterRoot);
     const filterContent = $(FILTER_CONTENT_SELECTOR, filterRoot);
     const filterContentInner = $(FILTER_CONTENT_INNER_SELECTOR, filterRoot);
     const filterTagTemplate = $(FILTER_TAG_SELECTOR, filterRoot);
-    const list = $(BLOG_LIST_SELECTOR);
 
     if (!filterRoot || !filterButton || !filterContent || !filterContentInner || !list) {
       return;
@@ -263,9 +262,7 @@
       return element;
     }
 
-    filterContentInner.replaceChildren(
-      ...options.map((option) => createFilterOption(option))
-    );
+    filterContentInner.replaceChildren(...options.map((option) => createFilterOption(option)));
 
     filterButton.setAttribute("aria-haspopup", "true");
     filterButton.setAttribute("aria-expanded", "false");
@@ -312,7 +309,7 @@
       const tagOptions = await populateTags(items);
       attachTagsToItems(items);
       replaceCollectionItems(list, items);
-      initFilterDropdown(tagOptions);
+      initFilterDropdown(list, tagOptions);
     } catch (error) {
       console.error("Failed to rebuild blog list.", error);
 
