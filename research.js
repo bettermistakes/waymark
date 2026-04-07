@@ -11,6 +11,7 @@
   const FILTER_CONTENT_SELECTOR = ".filter--content";
   const FILTER_CONTENT_INNER_SELECTOR = ".filter--content-inner";
   const FILTER_TAG_SELECTOR = ".filter--tag";
+  const SWIPER_SELECTOR = ".swiper.is--research";
   const PAGINATION_SELECTOR = ".blog--pagination";
   const PAGINATION_PREV_SELECTOR = ".arrow--pagination.is--prev";
   const PAGINATION_NEXT_SELECTOR = ".arrow--pagination.is--next";
@@ -62,6 +63,17 @@
       const label = normalizeWhitespace($(FILTER_BUTTON_LABEL_SELECTOR, parent)?.textContent);
       return label.toLowerCase() === labelText.toLowerCase();
     }) || null;
+  }
+
+  function getNextMatchingSibling(element, selector) {
+    let sibling = element ? element.nextElementSibling : null;
+
+    while (sibling) {
+      if (sibling.matches(selector)) return sibling;
+      sibling = sibling.nextElementSibling;
+    }
+
+    return null;
   }
 
   function getFilterOptionsFromMap(optionMap) {
@@ -351,8 +363,9 @@
     };
   }
 
-  function initPagination(state) {
-    const pagination = $(PAGINATION_SELECTOR);
+  function initPagination(anchor, state) {
+    const sectionRoot = anchor?.closest(".w-dyn-list") || anchor;
+    const pagination = getNextMatchingSibling(sectionRoot, PAGINATION_SELECTOR);
     const prevButton = $(PAGINATION_PREV_SELECTOR, pagination);
     const nextButton = $(PAGINATION_NEXT_SELECTOR, pagination);
     const dotsWrapper = $(PAGINATION_DOTS_SELECTOR, pagination);
@@ -398,6 +411,61 @@
         );
       },
     };
+  }
+
+  function initResearchSwiper() {
+    const swiperElement = $(SWIPER_SELECTOR);
+    if (!swiperElement) return;
+    if (swiperElement.dataset.researchSwiperMounted === "1") return;
+    if (typeof window.Swiper !== "function") return;
+
+    const pagination = getNextMatchingSibling(swiperElement, PAGINATION_SELECTOR);
+    const prevButton = $(PAGINATION_PREV_SELECTOR, pagination);
+    const nextButton = $(PAGINATION_NEXT_SELECTOR, pagination);
+    const dotsWrapper = $(PAGINATION_DOTS_SELECTOR, pagination);
+
+    if (!pagination || !prevButton || !nextButton || !dotsWrapper) return;
+
+    swiperElement.dataset.researchSwiperMounted = "1";
+
+    function syncNavigation(swiper) {
+      prevButton.classList.toggle("is-disabled", swiper.isBeginning);
+      nextButton.classList.toggle("is-disabled", swiper.isEnd);
+    }
+
+    new window.Swiper(swiperElement, {
+      slidesPerView: 1,
+      slidesPerGroup: 1,
+      spaceBetween: 24,
+      speed: 400,
+      watchOverflow: true,
+      navigation: {
+        prevEl: prevButton,
+        nextEl: nextButton,
+        disabledClass: "is-disabled",
+      },
+      pagination: {
+        el: dotsWrapper,
+        clickable: true,
+        bulletClass: "pagination--dot",
+        bulletActiveClass: "is-active",
+        renderBullet: function renderBullet(index, className) {
+          return `<button type="button" class="${className}">${index + 1}</button>`;
+        },
+      },
+      breakpoints: {
+        992: {
+          slidesPerView: 3,
+          slidesPerGroup: 1,
+          spaceBetween: 24,
+        },
+      },
+      on: {
+        init: syncNavigation,
+        slideChange: syncNavigation,
+        resize: syncNavigation,
+      },
+    });
   }
 
   async function initResearchFeed() {
@@ -446,7 +514,7 @@
       },
     };
 
-    const paginationApi = initPagination(state);
+    const paginationApi = initPagination(list, state);
 
     const sortParent = getFilterParentByLabel("Sort by");
     const filterParent = getFilterParentByLabel("Filter by");
@@ -521,6 +589,7 @@
   }
 
   raf2(() => {
+    initResearchSwiper();
     initResearchFeed();
   });
 })();
