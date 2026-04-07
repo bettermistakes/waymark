@@ -41,6 +41,11 @@ li.form-line:not([data-payment="true"]) [data-wrapper-react="true"] {
   flex-direction: column !important;
 }
 
+/* n+1 in plain language often means “from the 2nd sibling”; in CSS that is :nth-child(n+2) */
+.form-sub-label-container:nth-child(n + 2) {
+  margin-top: 1rem !important;
+}
+
 .form-sub-label-container > label.form-sub-label,
 .form-sub-label-container > label {
   order: -1 !important;
