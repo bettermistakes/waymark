@@ -1,7 +1,8 @@
 (function () {
   "use strict";
 
-  const BLOG_LIST_SELECTOR = ".blog--collection-list.is--filters";
+  const BLOG_SOURCE_LIST_SELECTOR = ".blog--collection-list.w-dyn-items";
+  const BLOG_TARGET_LIST_SELECTOR = ".blog--collection-list.is--filters";
   const BLOG_ITEM_SELECTOR = ".w-dyn-item";
   const FILTER_ROOT_SELECTOR = ".filter--parent";
   const FILTER_BUTTON_SELECTOR = ".filter--btn";
@@ -64,7 +65,7 @@
   }
 
   function getCollectionItems(doc) {
-    const list = $(BLOG_LIST_SELECTOR, doc);
+    const list = $(BLOG_SOURCE_LIST_SELECTOR, doc) || $(".blog--collection-list", doc);
     if (!list) return [];
 
     const directItems = getDirectListItems(list);
@@ -73,6 +74,11 @@
 
   function getItemUrl(item) {
     if (!item) return "";
+
+    const cardLink = item.querySelector('.blog--link[href]:not([href="#"]):not([href^="javascript:"])');
+    if (cardLink) {
+      return toAbsoluteUrl(cardLink.getAttribute("href"));
+    }
 
     if (item.matches("a[href]")) {
       const href = item.getAttribute("href");
@@ -333,7 +339,7 @@
   }
 
   async function initBlogFeed() {
-    const list = $(BLOG_LIST_SELECTOR);
+    const list = $(BLOG_TARGET_LIST_SELECTOR);
     const filterButtonLabel = $(FILTER_BUTTON_LABEL_SELECTOR);
 
     if (!list) return;
