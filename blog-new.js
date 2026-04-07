@@ -23,6 +23,7 @@
   const TAG_CACHE_TTL_MS = 1000 * 60 * 60 * 12;
   const FADE_DURATION_MS = 180;
   const DROPDOWN_DURATION_MS = 220;
+  const DEBUG_LOGS = true;
 
   function $(selector, root) {
     return (root || document).querySelector(selector);
@@ -34,6 +35,17 @@
 
   function raf2(callback) {
     requestAnimationFrame(() => requestAnimationFrame(callback));
+  }
+
+  function debugLog(message, payload) {
+    if (!DEBUG_LOGS) return;
+
+    if (typeof payload === "undefined") {
+      console.log("[blog-new]", message);
+      return;
+    }
+
+    console.log("[blog-new]", message, payload);
   }
 
   function normalizeWhitespace(value) {
@@ -92,6 +104,12 @@
   async function transitionList(list, items) {
     const canAnimate = !prefersReducedMotion() && typeof list.animate === "function";
     const hasExistingItems = list.children.length > 0;
+
+    debugLog("transitionList", {
+      canAnimate,
+      hasExistingItems,
+      nextItemCount: items.length,
+    });
 
     if (!canAnimate) {
       replaceCollectionItems(list, items);
@@ -201,6 +219,12 @@
           tags: [],
         });
       });
+
+      debugLog("collected page", {
+        page,
+        pageItemCount: pageItems.length,
+        totalCollected: items.length,
+      });
     }
 
     return {
@@ -276,6 +300,10 @@
     });
 
     if (onUpdate) {
+      debugLog("populateTags cache warm", {
+        cachedTagCount: allTags.size,
+        pendingItemCount: pendingItems.length,
+      });
       onUpdate(getTagOptionsFromMap(allTags), true);
     }
 
@@ -304,6 +332,11 @@
       writeTagCache(tagCache);
 
       if (didAddTag && onUpdate) {
+        debugLog("populateTags new tag batch", {
+          url: item.url,
+          itemTagCount: tags.length,
+          totalTagCount: allTags.size,
+        });
         onUpdate(getTagOptionsFromMap(allTags), false);
       }
     });
@@ -447,13 +480,17 @@
         event.preventDefault();
         state.activeFilter = option.value;
         state.currentPage = 1;
+        debugLog("filter selected", {
+          value: option.value || "all",
+          label: option.label,
+        });
 
         $all(FILTER_TAG_SELECTOR, filterContentInner).forEach((tagElement) => {
           tagElement.classList.toggle("is-active", tagElement.dataset.filterValue === state.activeFilter);
         });
 
         updateButtonLabel();
-        state.render();
+        state.render("filter-change");
         void setOpen(false);
       });
 
@@ -525,7 +562,8 @@
       dot.classList.toggle("is-active", pageNumber === state.currentPage);
       dot.addEventListener("click", () => {
         state.currentPage = pageNumber;
-        state.render();
+        debugLog("pagination dot clicked", { pageNumber });
+        state.render("pagination-dot");
       });
       return dot;
     }
@@ -533,13 +571,15 @@
     prevButton.addEventListener("click", () => {
       if (state.currentPage <= 1) return;
       state.currentPage -= 1;
-      state.render();
+      debugLog("pagination prev clicked", { currentPage: state.currentPage });
+      state.render("pagination-prev");
     });
 
     nextButton.addEventListener("click", () => {
       if (state.currentPage >= state.totalPages) return;
       state.currentPage += 1;
-      state.render();
+      debugLog("pagination next clicked", { currentPage: state.currentPage });
+      state.render("pagination-next");
     });
 
     return {
@@ -560,6 +600,8 @@
     const list = $(BLOG_TARGET_LIST_SELECTOR);
     const filterButtonLabel = $(FILTER_BUTTON_LABEL_SELECTOR);
 
+    debugLog("initBlogFeed start");
+
     if (!list) return;
     if (list.dataset.blogFeedMounted === "1") return;
     list.dataset.blogFeedMounted = "1";
@@ -571,6 +613,11 @@
     try {
       const result = await collectAllBlogItems();
       const items = result.items;
+      debugLog("initBlogFeed items collected", {
+        itemCount: items.length,
+        itemsPerPage: result.itemsPerPage,
+      });
+
       if (!items.length) {
         if (filterButtonLabel) filterButtonLabel.textContent = "Filter by";
         return;
@@ -585,7 +632,14 @@
         tagsLoading: true,
         renderChain: Promise.resolve(),
         totalPages: 1,
-        render: function render() {
+        render: function render(reason) {
+          debugLog("render queued", {
+            reason: reason || "unspecified",
+            activeFilter: state.activeFilter || "all",
+            currentPage: state.currentPage,
+            tagOptionCount: state.tagOptions.length,
+          });
+
           state.renderChain = state.renderChain
             .catch(function ignoreRenderError() {})
             .then(async function runRender() {
@@ -595,6 +649,14 @@
 
               const startIndex = (state.currentPage - 1) * state.itemsPerPage;
               const pageItems = filteredItems.slice(startIndex, startIndex + state.itemsPerPage);
+
+              debugLog("render start", {
+                reason: reason || "unspecified",
+                filteredCount: filteredItems.length,
+                pageItemCount: pageItems.length,
+                currentPage: state.currentPage,
+                totalPages: state.totalPages,
+              });
 
               paginationApi.render();
               await transitionList(list, pageItems);
@@ -606,12 +668,16 @@
 
       const paginationApi = initPagination(state);
       const filterApi = initFilterDropdown(state);
-      state.render();
+      state.render("initial");
 
       populateTags(items, function handleTagUpdate(tagOptions, fromCache) {
         state.tagOptions = tagOptions;
         filterApi.renderOptions();
-        state.render();
+        debugLog("tag update received", {
+          fromCache,
+          tagOptionCount: tagOptions.length,
+        });
+        state.render(fromCache ? "tag-update-cache" : "tag-update-network");
 
         if (fromCache && tagOptions.length) {
           filterApi.setLoading(false);
@@ -621,7 +687,10 @@
         state.tagsLoading = false;
         filterApi.renderOptions();
         filterApi.setLoading(false);
-        state.render();
+        debugLog("tag loading complete", {
+          tagOptionCount: tagOptions.length,
+        });
+        state.render("tag-loading-complete");
       }).catch((error) => {
         console.error("Failed to load blog tags.", error);
         state.tagsLoading = false;
