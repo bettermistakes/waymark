@@ -15,6 +15,7 @@
   const PAGINATION_NEXT_SELECTOR = ".arrow--pagination.is--next";
   const PAGINATION_DOTS_SELECTOR = ".pagination--dots-wrapper";
   const TAGS_WRAPPER_SELECTOR = ".tags-wrapper";
+  const CLIENT_PAGE_SIZE = 9;
   const MAX_PAGE_COUNT = 100;
   const DETAIL_FETCH_CONCURRENCY = 6;
 
@@ -92,7 +93,6 @@
   async function collectAllBlogItems() {
     const items = [];
     const seenKeys = new Set();
-    let itemsPerPage = 0;
 
     for (let page = 1; page <= MAX_PAGE_COUNT; page += 1) {
       const pageDoc = await fetchDocument(`/blogs/${page}`);
@@ -100,7 +100,6 @@
 
       const pageItems = getCollectionItems(pageDoc);
       if (!pageItems.length) break;
-      if (!itemsPerPage) itemsPerPage = pageItems.length;
 
       pageItems.forEach((pageItem, index) => {
         const importedItem = document.importNode(pageItem, true);
@@ -120,7 +119,7 @@
 
     return {
       items,
-      itemsPerPage: itemsPerPage || items.length || 1,
+      itemsPerPage: CLIENT_PAGE_SIZE,
     };
   }
 
@@ -347,7 +346,7 @@
     list.dataset.blogFeedMounted = "1";
 
     if (filterButtonLabel) {
-      filterButtonLabel.textContent = "Loading...";
+      filterButtonLabel.textContent = "Loading filters...";
     }
 
     try {
@@ -358,7 +357,6 @@
         return;
       }
 
-      const tagOptions = await populateTags(items);
       const state = {
         activeFilter: "",
         currentPage: 1,
@@ -379,8 +377,20 @@
       };
 
       const paginationApi = initPagination(state);
-      initFilterDropdown(tagOptions, state);
       state.render();
+
+      populateTags(items)
+        .then((tagOptions) => {
+          initFilterDropdown(tagOptions, state);
+          state.render();
+        })
+        .catch((error) => {
+          console.error("Failed to load blog tags.", error);
+
+          if (filterButtonLabel) {
+            filterButtonLabel.textContent = "Filter by";
+          }
+        });
     } catch (error) {
       console.error("Failed to rebuild blog list.", error);
 
