@@ -456,7 +456,7 @@
       breakpoints: {
         992: {
           slidesPerView: 3,
-          slidesPerGroup: 1,
+          slidesPerGroup: 3,
           spaceBetween: 24,
         },
       },
