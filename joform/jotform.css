@@ -4,6 +4,10 @@
   display: none !important;
 }
 
+.jotform-form {
+  padding-bottom: 1rem !important;
+}
+
 /* From Get_in_Touch.html: first inline <style> (@media print) */
 @media print {
   * {
