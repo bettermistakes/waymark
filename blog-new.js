@@ -21,6 +21,9 @@
   const DETAIL_FETCH_CONCURRENCY = 6;
   const TAG_CACHE_KEY = "waymark-blog-tag-cache-v1";
   const TAG_CACHE_TTL_MS = 1000 * 60 * 60 * 12;
+  const BLOG_IMAGE_WRAPPER_SELECTOR = ".blog--image-wrapper";
+  const DOMINANT_COLOR_SAMPLE_MAX = 56;
+  const DOMINANT_COLOR_QUANT_STEP = 32;
   const FADE_DURATION_MS = 180;
   const DROPDOWN_DURATION_MS = 220;
   const DEBUG_LOGS = true;
@@ -344,6 +347,121 @@
     return getTagOptionsFromMap(allTags);
   }
 
+  function quantizeChannel(value) {
+    const step = DOMINANT_COLOR_QUANT_STEP;
+    return Math.min(255, Math.round(value / step) * step);
+  }
+
+  function getDominantColorFromImageData(imageData) {
+    const data = imageData.data;
+    const counts = new Map();
+
+    for (let i = 0; i < data.length; i += 4) {
+      const a = data[i + 3];
+      if (a < 8) continue;
+
+      const r = quantizeChannel(data[i]);
+      const g = quantizeChannel(data[i + 1]);
+      const b = quantizeChannel(data[i + 2]);
+      const key = `${r},${g},${b}`;
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+
+    let bestKey = null;
+    let bestCount = 0;
+
+    counts.forEach((count, key) => {
+      if (count > bestCount) {
+        bestCount = count;
+        bestKey = key;
+      }
+    });
+
+    if (!bestKey) return null;
+
+    const parts = bestKey.split(",").map(Number);
+    return `rgb(${parts[0]}, ${parts[1]}, ${parts[2]})`;
+  }
+
+  function getDominantColorFromImageElement(img) {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return null;
+
+    let width = img.naturalWidth;
+    let height = img.naturalHeight;
+    if (!width || !height) return null;
+
+    const maxDim = DOMINANT_COLOR_SAMPLE_MAX;
+    const scale = Math.min(1, maxDim / Math.max(width, height));
+    width = Math.max(1, Math.round(width * scale));
+    height = Math.max(1, Math.round(height * scale));
+
+    canvas.width = width;
+    canvas.height = height;
+
+    try {
+      ctx.drawImage(img, 0, 0, width, height);
+    } catch (_error) {
+      return null;
+    }
+
+    let imageData;
+    try {
+      imageData = ctx.getImageData(0, 0, width, height);
+    } catch (_error) {
+      return null;
+    }
+
+    return getDominantColorFromImageData(imageData);
+  }
+
+  function loadImageCrossOrigin(url) {
+    return new Promise(function loadImageCrossOriginExecutor(resolve, reject) {
+      const image = new Image();
+      image.crossOrigin = "anonymous";
+      image.onload = function handleImageLoad() {
+        resolve(image);
+      };
+      image.onerror = function handleImageError() {
+        reject(new Error("Image failed to load"));
+      };
+      image.src = url;
+    });
+  }
+
+  async function applyDominantColorToBlogImageWrapper(wrapper) {
+    if (wrapper.dataset.blogDominantBg === "1") return;
+
+    const img = wrapper.querySelector("img");
+    if (!img) return;
+
+    const url = img.currentSrc || img.src;
+    if (!url || url.startsWith("data:")) return;
+
+    let color = null;
+
+    try {
+      const sampled = await loadImageCrossOrigin(url);
+      color = getDominantColorFromImageElement(sampled);
+    } catch (_error) {
+      debugLog("dominant color: CORS or load failed, skipping wrapper", { url });
+      return;
+    }
+
+    if (!color) return;
+
+    wrapper.style.backgroundColor = color;
+    wrapper.dataset.blogDominantBg = "1";
+  }
+
+  async function applyBlogImageWrapperBackgrounds(root) {
+    const wrappers = $all(BLOG_IMAGE_WRAPPER_SELECTOR, root);
+    if (!wrappers.length) return;
+
+    await Promise.all(wrappers.map((wrapper) => applyDominantColorToBlogImageWrapper(wrapper)));
+  }
+
   function replaceCollectionItems(list, items) {
     const fragment = document.createDocumentFragment();
 
@@ -355,6 +473,7 @@
     });
 
     list.replaceChildren(fragment);
+    void applyBlogImageWrapperBackgrounds(list);
   }
 
   function formatAuthorNames(names) {
