@@ -22,8 +22,14 @@
   const TAG_CACHE_KEY = "waymark-blog-tag-cache-v1";
   const TAG_CACHE_TTL_MS = 1000 * 60 * 60 * 12;
   const BLOG_IMAGE_WRAPPER_SELECTOR = ".blog--image-wrapper";
-  const DOMINANT_COLOR_SAMPLE_MAX = 56;
-  const DOMINANT_COLOR_QUANT_STEP = 32;
+  /** Downscaled longest edge for analysis (higher = more accurate, slower). */
+  const DOMINANT_COLOR_SAMPLE_MAX = 96;
+  /** Fraction of width/height treated as “edge” where flat art backgrounds usually show. */
+  const DOMINANT_COLOR_BORDER_FRAC = 0.14;
+  /** Skip very dark edge pixels (text, logo) when averaging the border. 0–255 luminance. */
+  const DOMINANT_COLOR_BORDER_MIN_LUM = 155;
+  /** Fallback: full-frame histogram uses coarser buckets. */
+  const DOMINANT_COLOR_QUANT_STEP = 24;
   const FADE_DURATION_MS = 180;
   const DROPDOWN_DURATION_MS = 220;
   const DEBUG_LOGS = true;
@@ -347,32 +353,92 @@
     return getTagOptionsFromMap(allTags);
   }
 
-  function quantizeChannel(value) {
-    const step = DOMINANT_COLOR_QUANT_STEP;
-    return Math.min(255, Math.round(value / step) * step);
+  function relativeLuminance(r, g, b) {
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
   }
 
-  function getDominantColorFromImageData(imageData) {
+  function quantizeChannel(value, step) {
+    const s = step || DOMINANT_COLOR_QUANT_STEP;
+    return Math.min(255, Math.round(value / s) * s);
+  }
+
+  /**
+   * Best for card art: large flat background is visible on the edges; center has photo/text.
+   * Average light pixels on the border ring → close to the intended pale background.
+   */
+  function getBackgroundTintFromImageData(imageData) {
+    const w = imageData.width;
+    const h = imageData.height;
+    const data = imageData.data;
+    const border = Math.max(2, Math.floor(Math.min(w, h) * DOMINANT_COLOR_BORDER_FRAC));
+
+    let sumR = 0;
+    let sumG = 0;
+    let sumB = 0;
+    let borderCount = 0;
+
+    for (let y = 0; y < h; y += 1) {
+      for (let x = 0; x < w; x += 1) {
+        const onBorder = x < border || x >= w - border || y < border || y >= h - border;
+        if (!onBorder) continue;
+
+        const i = (y * w + x) * 4;
+        if (data[i + 3] < 8) continue;
+
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const lum = relativeLuminance(r, g, b);
+        if (lum < DOMINANT_COLOR_BORDER_MIN_LUM) continue;
+
+        sumR += r;
+        sumG += g;
+        sumB += b;
+        borderCount += 1;
+      }
+    }
+
+    if (borderCount >= 8) {
+      const r = Math.round(sumR / borderCount);
+      const g = Math.round(sumG / borderCount);
+      const b = Math.round(sumB / borderCount);
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    return getDominantColorHistogramFallback(imageData);
+  }
+
+  /**
+   * Whole-frame mode on quantized colors — biased toward lighter pixels so text/photos
+   * don’t win when border sampling fails (e.g. thin asset).
+   */
+  function getDominantColorHistogramFallback(imageData) {
     const data = imageData.data;
     const counts = new Map();
 
     for (let i = 0; i < data.length; i += 4) {
-      const a = data[i + 3];
-      if (a < 8) continue;
+      if (data[i + 3] < 8) continue;
 
-      const r = quantizeChannel(data[i]);
-      const g = quantizeChannel(data[i + 1]);
-      const b = quantizeChannel(data[i + 2]);
-      const key = `${r},${g},${b}`;
-      counts.set(key, (counts.get(key) || 0) + 1);
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const lum = relativeLuminance(r, g, b);
+
+      const qr = quantizeChannel(r, DOMINANT_COLOR_QUANT_STEP);
+      const qg = quantizeChannel(g, DOMINANT_COLOR_QUANT_STEP);
+      const qb = quantizeChannel(b, DOMINANT_COLOR_QUANT_STEP);
+      const key = `${qr},${qg},${qb}`;
+      const weight = lum / 255;
+      const add = weight * weight;
+      counts.set(key, (counts.get(key) || 0) + add);
     }
 
     let bestKey = null;
-    let bestCount = 0;
+    let bestScore = 0;
 
-    counts.forEach((count, key) => {
-      if (count > bestCount) {
-        bestCount = count;
+    counts.forEach((score, key) => {
+      if (score > bestScore) {
+        bestScore = score;
         bestKey = key;
       }
     });
@@ -413,7 +479,7 @@
       return null;
     }
 
-    return getDominantColorFromImageData(imageData);
+    return getBackgroundTintFromImageData(imageData);
   }
 
   function loadImageCrossOrigin(url) {
