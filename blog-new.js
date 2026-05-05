@@ -15,8 +15,8 @@
   const PAGINATION_PREV_SELECTOR = ".arrow--pagination.is--prev";
   const PAGINATION_NEXT_SELECTOR = ".arrow--pagination.is--next";
   const PAGINATION_DOTS_SELECTOR = ".pagination--dots-wrapper";
-  /** Wrap featured / page-one-only blog UI in Webflow and add this attribute or class. */
-  const BLOG_PAGE_ONE_ONLY_SELECTOR = "[data-blog-page-one-only], .blog--page-one-only";
+  /** Wrap featured / page-one-only blog UI; Webflow may emit `blog-page-one-only` or `data-blog-page-one-only`. */
+  const BLOG_PAGE_ONE_ONLY_SELECTOR = "[blog-page-one-only], [data-blog-page-one-only], .blog--page-one-only";
   const TAGS_WRAPPER_SELECTOR = ".tags-wrapper";
   const CLIENT_PAGE_SIZE = 9;
   const MAX_PAGE_COUNT = 100;
