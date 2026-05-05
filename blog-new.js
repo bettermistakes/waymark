@@ -15,6 +15,8 @@
   const PAGINATION_PREV_SELECTOR = ".arrow--pagination.is--prev";
   const PAGINATION_NEXT_SELECTOR = ".arrow--pagination.is--next";
   const PAGINATION_DOTS_SELECTOR = ".pagination--dots-wrapper";
+  /** Wrap featured / page-one-only blog UI in Webflow and add this attribute or class. */
+  const BLOG_PAGE_ONE_ONLY_SELECTOR = "[data-blog-page-one-only], .blog--page-one-only";
   const TAGS_WRAPPER_SELECTOR = ".tags-wrapper";
   const CLIENT_PAGE_SIZE = 9;
   const MAX_PAGE_COUNT = 100;
@@ -528,6 +530,13 @@
     await Promise.all(wrappers.map((wrapper) => applyDominantColorToBlogImageWrapper(wrapper)));
   }
 
+  function syncBlogPageOneOnlySections(currentPage) {
+    const hide = currentPage > 1;
+    $all(BLOG_PAGE_ONE_ONLY_SELECTOR).forEach((section) => {
+      section.toggleAttribute("hidden", hide);
+    });
+  }
+
   function replaceCollectionItems(list, items) {
     const fragment = document.createDocumentFragment();
 
@@ -876,6 +885,8 @@
               const filteredItems = getFilteredItems(state.items, state.activeFilter);
               state.totalPages = Math.max(1, Math.ceil(filteredItems.length / state.itemsPerPage));
               state.currentPage = Math.min(state.currentPage, state.totalPages);
+
+              syncBlogPageOneOnlySections(state.currentPage);
 
               const startIndex = (state.currentPage - 1) * state.itemsPerPage;
               const pageItems = filteredItems.slice(startIndex, startIndex + state.itemsPerPage);
