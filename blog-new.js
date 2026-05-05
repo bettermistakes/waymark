@@ -537,6 +537,18 @@
     });
   }
 
+  function scrollBlogListIntoView(listEl) {
+    if (!listEl) return;
+
+    requestAnimationFrame(function scrollBlogListRaf() {
+      listEl.scrollIntoView({
+        behavior: prefersReducedMotion() ? "auto" : "smooth",
+        block: "start",
+        inline: "nearest",
+      });
+    });
+  }
+
   function replaceCollectionItems(list, items) {
     const fragment = document.createDocumentFragment();
 
@@ -798,7 +810,7 @@
       dot.addEventListener("click", () => {
         state.currentPage = pageNumber;
         debugLog("pagination dot clicked", { pageNumber });
-        state.render("pagination-dot");
+        state.render("pagination-dot", { scrollToList: true });
       });
       return dot;
     }
@@ -807,14 +819,14 @@
       if (state.currentPage <= 1) return;
       state.currentPage -= 1;
       debugLog("pagination prev clicked", { currentPage: state.currentPage });
-      state.render("pagination-prev");
+      state.render("pagination-prev", { scrollToList: true });
     });
 
     nextButton.addEventListener("click", () => {
       if (state.currentPage >= state.totalPages) return;
       state.currentPage += 1;
       debugLog("pagination next clicked", { currentPage: state.currentPage });
-      state.render("pagination-next");
+      state.render("pagination-next", { scrollToList: true });
     });
 
     return {
@@ -869,7 +881,7 @@
         renderChain: Promise.resolve(),
         totalPages: 1,
         render: function render(reason, options) {
-          const renderOptions = Object.assign({ animate: true }, options);
+          const renderOptions = Object.assign({ animate: true, scrollToList: false }, options);
 
           debugLog("render queued", {
             reason: reason || "unspecified",
@@ -877,6 +889,7 @@
             currentPage: state.currentPage,
             tagOptionCount: state.tagOptions.length,
             animate: renderOptions.animate,
+            scrollToList: renderOptions.scrollToList,
           });
 
           state.renderChain = state.renderChain
@@ -909,6 +922,9 @@
                 debugLog("render skipped list transition", {
                   reason: reason || "unspecified",
                 });
+                if (renderOptions.scrollToList) {
+                  scrollBlogListIntoView(list);
+                }
                 return;
               }
 
@@ -922,6 +938,10 @@
               }
 
               state.lastRenderedSignature = pageSignature;
+
+              if (renderOptions.scrollToList) {
+                scrollBlogListIntoView(list);
+              }
             });
 
           return state.renderChain;
