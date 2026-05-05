@@ -17,6 +17,7 @@
   const PAGINATION_DOTS_SELECTOR = ".pagination--dots-wrapper";
   /** Wrap featured / page-one-only blog UI; Webflow may emit `blog-page-one-only` or `data-blog-page-one-only`. */
   const BLOG_PAGE_ONE_ONLY_SELECTOR = "[blog-page-one-only], [data-blog-page-one-only], .blog--page-one-only";
+  const PAGINATION_SCROLL_TARGET_SELECTOR = "#top";
   const TAGS_WRAPPER_SELECTOR = ".tags-wrapper";
   const CLIENT_PAGE_SIZE = 9;
   const MAX_PAGE_COUNT = 100;
@@ -537,15 +538,21 @@
     });
   }
 
-  function scrollBlogListIntoView(listEl) {
-    if (!listEl) return;
+  function scrollToPaginationAnchor() {
+    const target = $(PAGINATION_SCROLL_TARGET_SELECTOR);
+    const behavior = prefersReducedMotion() ? "auto" : "smooth";
 
-    requestAnimationFrame(function scrollBlogListRaf() {
-      listEl.scrollIntoView({
-        behavior: prefersReducedMotion() ? "auto" : "smooth",
-        block: "start",
-        inline: "nearest",
-      });
+    requestAnimationFrame(function scrollToTopRaf() {
+      if (target) {
+        target.scrollIntoView({
+          behavior: behavior,
+          block: "start",
+          inline: "nearest",
+        });
+        return;
+      }
+
+      window.scrollTo({ top: 0, left: 0, behavior: behavior });
     });
   }
 
@@ -810,7 +817,7 @@
       dot.addEventListener("click", () => {
         state.currentPage = pageNumber;
         debugLog("pagination dot clicked", { pageNumber });
-        state.render("pagination-dot", { scrollToList: true });
+        state.render("pagination-dot", { scrollToTop: true });
       });
       return dot;
     }
@@ -819,14 +826,14 @@
       if (state.currentPage <= 1) return;
       state.currentPage -= 1;
       debugLog("pagination prev clicked", { currentPage: state.currentPage });
-      state.render("pagination-prev", { scrollToList: true });
+      state.render("pagination-prev", { scrollToTop: true });
     });
 
     nextButton.addEventListener("click", () => {
       if (state.currentPage >= state.totalPages) return;
       state.currentPage += 1;
       debugLog("pagination next clicked", { currentPage: state.currentPage });
-      state.render("pagination-next", { scrollToList: true });
+      state.render("pagination-next", { scrollToTop: true });
     });
 
     return {
@@ -881,7 +888,7 @@
         renderChain: Promise.resolve(),
         totalPages: 1,
         render: function render(reason, options) {
-          const renderOptions = Object.assign({ animate: true, scrollToList: false }, options);
+          const renderOptions = Object.assign({ animate: true, scrollToTop: false }, options);
 
           debugLog("render queued", {
             reason: reason || "unspecified",
@@ -889,7 +896,7 @@
             currentPage: state.currentPage,
             tagOptionCount: state.tagOptions.length,
             animate: renderOptions.animate,
-            scrollToList: renderOptions.scrollToList,
+            scrollToTop: renderOptions.scrollToTop,
           });
 
           state.renderChain = state.renderChain
@@ -922,8 +929,8 @@
                 debugLog("render skipped list transition", {
                   reason: reason || "unspecified",
                 });
-                if (renderOptions.scrollToList) {
-                  scrollBlogListIntoView(list);
+                if (renderOptions.scrollToTop) {
+                  scrollToPaginationAnchor();
                 }
                 return;
               }
@@ -939,8 +946,8 @@
 
               state.lastRenderedSignature = pageSignature;
 
-              if (renderOptions.scrollToList) {
-                scrollBlogListIntoView(list);
+              if (renderOptions.scrollToTop) {
+                scrollToPaginationAnchor();
               }
             });
 
