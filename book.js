@@ -30,7 +30,7 @@ function pageLoad() {
       ease: "smooth",
       duration: 0.6,
     },
-    "loadingAnimationsStart"
+    "loadingAnimationsStart",
   ); // <-- position parameter set to the label
 }
 
@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .querySelector(".chapter-bar--part-name")
         .innerText.trim(); // Ensure no extra spaces
       const chapterNumber = parseInt(
-        item.querySelector(".book-bar-chapter-number").innerText.trim()
+        item.querySelector(".book-bar-chapter-number").innerText.trim(),
       );
       const chapterLink = item.querySelector(".book-bar-chapter-link");
       const chapterSummary = item.querySelector(".chapter--summary");
@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Sort chapters within the part by chapter number
       const sortedChapters = groupedChapters[partName].sort(
-        (a, b) => a.chapterNumber - b.chapterNumber
+        (a, b) => a.chapterNumber - b.chapterNumber,
       );
 
       // Create the part item container
@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to add the `is--disabled` class
   function addDisabledClassToChapterTitle() {
     const currentChapterLink = document.querySelector(
-      ".book-bar-chapter-link.w--current"
+      ".book-bar-chapter-link.w--current",
     );
 
     if (currentChapterLink) {
@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (currentPartItem) {
         const firstChapterLink = currentPartItem.querySelector(
-          ".book-bar-chapter-link"
+          ".book-bar-chapter-link",
         );
         const partName = currentPartItem
           .querySelector(".book-bar-part-link")
@@ -168,17 +168,17 @@ document.addEventListener("DOMContentLoaded", function () {
           partName === "Acknowledgements"
         ) {
           console.log(
-            "Current chapter is either not the first one in the part, or it's Endnotes, Acknowledgements, or the Epilogue."
+            "Current chapter is either not the first one in the part, or it's Endnotes, Acknowledgements, or the Epilogue.",
           );
 
           // Select the global .chapter--title-parent.is--margin-bottom element
           const titleParent = document.querySelector(
-            ".chapter--title-parent.is--margin-bottom"
+            ".chapter--title-parent.is--margin-bottom",
           );
 
           if (titleParent) {
             console.log(
-              "Found the .chapter--title-parent element, adding class."
+              "Found the .chapter--title-parent element, adding class.",
             );
             titleParent.classList.add("is--disabled");
           } else {
@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function initArrowsLogic() {
     // Find the current chapter link
     const currentChapter = document.querySelector(
-      ".book-bar-chapter-link.w--current"
+      ".book-bar-chapter-link.w--current",
     );
 
     console.log("Current Chapter:", currentChapter);
@@ -212,10 +212,10 @@ document.addEventListener("DOMContentLoaded", function () {
     if (currentChapter) {
       // Find all chapter links
       const allChapters = Array.from(
-        document.querySelectorAll(".book-bar-chapter-link")
+        document.querySelectorAll(".book-bar-chapter-link"),
       );
       const allSummaries = Array.from(
-        document.querySelectorAll(".chapter--summary")
+        document.querySelectorAll(".chapter--summary"),
       );
       const currentIndex = allChapters.indexOf(currentChapter);
 
@@ -227,17 +227,17 @@ document.addEventListener("DOMContentLoaded", function () {
       const nextChapter = allChapters[currentIndex + 1];
       const nextArrow = document.querySelector(".book-chapter-arrow.is--next");
       const nextContainer = document.querySelector(
-        ".container--924.is--next-chapter"
+        ".container--924.is--next-chapter",
       );
       const nextButton = document.querySelector(".btn.is--next-chapter");
       const nextHeading = document.querySelector(
-        ".heading--46.is--next-chapter"
+        ".heading--46.is--next-chapter",
       );
       const nextParagraph = document.querySelector(
-        ".paragraph--14.is--next-chapter"
+        ".paragraph--14.is--next-chapter",
       );
       const chapterSummaryWrapper = document.querySelector(
-        ".chapter--summary-wrapper"
+        ".chapter--summary-wrapper",
       );
 
       console.log("Next Chapter:", nextChapter);
@@ -259,7 +259,7 @@ document.addEventListener("DOMContentLoaded", function () {
           "Next Chapter Summary Text:",
           nextChapterSummary
             ? nextChapterSummary.textContent
-            : "Summary not available"
+            : "Summary not available",
         );
 
         nextArrow.setAttribute("href", nextHref);
@@ -294,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "Updating next paragraph with:",
             nextChapterSummary
               ? nextChapterSummary.textContent
-              : "Summary not available"
+              : "Summary not available",
           );
           nextParagraph.textContent = nextChapterSummary
             ? nextChapterSummary.textContent
@@ -365,11 +365,11 @@ document
     const bookBar = document.querySelector(".book-bar");
     const triggerIcon = document.querySelector(".navbar--trigger-icon");
     const triggerIconClose = document.querySelector(
-      ".navbar--trigger-icon-close"
+      ".navbar--trigger-icon-close",
     );
     const navbarTrigger = document.querySelector(".navbar--bar-trigger");
     const searchTrigger = document.querySelector(
-      ".navbar--bar-function-trigger.is--search.is--tooclose"
+      ".navbar--bar-function-trigger.is--search.is--tooclose",
     );
 
     if (navbarTrigger.classList.contains("is--toopen")) {
@@ -386,7 +386,7 @@ document
             opacity: 0,
             duration: 0.3,
           },
-          0
+          0,
         ) // Start this animation at the same time as bookBar animation
         .to(
           triggerIconClose,
@@ -394,7 +394,7 @@ document
             opacity: 1,
             duration: 0.3,
           },
-          0
+          0,
         ); // Start this animation at the same time as bookBar animation
 
       // Switch the class from is--toopen to is--toclose after animation
@@ -414,7 +414,7 @@ document
             opacity: 0,
             duration: 0.3,
           },
-          0
+          0,
         ) // Start this animation at the same time as bookBar animation
         .to(
           triggerIcon,
@@ -422,7 +422,7 @@ document
             opacity: 1,
             duration: 0.3,
           },
-          0
+          0,
         ); // Start this animation at the same time as bookBar animation
 
       // Switch the class from is--toclose back to is--toopen after animation
@@ -439,7 +439,7 @@ document
 // ----------------- settings trigger ------------------- //
 
 const settingsTrigger = document.querySelector(
-  ".navbar--bar-function-trigger.is--settings"
+  ".navbar--bar-function-trigger.is--settings",
 );
 const popup = settingsTrigger.querySelector(".navbar--function-popup");
 
@@ -505,7 +505,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .forEach((element) => {
         element.innerHTML = element.innerHTML.replace(
           /<mark class="highlight">|<\/mark>/gim,
-          ""
+          "",
         );
       });
   }
@@ -555,7 +555,7 @@ document.addEventListener("DOMContentLoaded", function () {
     partItems.forEach((partItem) => {
       let partLink = partItem.querySelector(".book-bar-part-link");
       let chapterLinksInPart = partItem.querySelectorAll(
-        ".book-bar-chapter-link"
+        ".book-bar-chapter-link",
       );
       let anyVisible = false;
 
@@ -582,14 +582,14 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
               // If not found in cached content, check all visible .book--richtext and .heading--29.is--chapter-title elements
               let currentChapterContents = document.querySelectorAll(
-                `.book--richtext, .heading--29.is--chapter-title`
+                `.book--richtext, .heading--29.is--chapter-title`,
               );
 
               let termFound = false;
               currentChapterContents.forEach((content) => {
                 if (
                   content.innerHTML.includes(
-                    `<mark class="highlight">${term}</mark>`
+                    `<mark class="highlight">${term}</mark>`,
                   )
                 ) {
                   termFound = true;
@@ -645,7 +645,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const span = document.createElement("span");
             span.innerHTML = node.textContent.replace(
               regex,
-              `<mark class="highlight">$1</mark>`
+              `<mark class="highlight">$1</mark>`,
             );
             node.parentNode.replaceChild(span, node);
           }
@@ -688,7 +688,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Search and Reset Button Logic
 const searchTrigger = document.querySelector(
-  ".navbar--bar-function-trigger.is--search"
+  ".navbar--bar-function-trigger.is--search",
 );
 const searchInputWrapper = document.querySelector(".book-bar-searchbar-parent");
 const searchBarInput = document.getElementById("search-bar");
@@ -769,7 +769,7 @@ function updateFont(fontType) {
     chapterTitle.style.setProperty(
       "font-family",
       "Poppins, sans-serif",
-      "important"
+      "important",
     );
 
     // Update body text elements font
@@ -780,7 +780,7 @@ function updateFont(fontType) {
           element.style.setProperty(
             "font-family",
             "Heebo, sans-serif",
-            "important"
+            "important",
           );
         });
     });
@@ -790,7 +790,7 @@ function updateFont(fontType) {
       heading.style.setProperty(
         "font-family",
         "Heebo, sans-serif",
-        "important"
+        "important",
       );
     });
 
@@ -840,7 +840,7 @@ function updateFont(fontType) {
 
   // Find the clicked button and toggle the active class
   const clickedButton = Array.from(
-    document.querySelectorAll(".font-style .navbar--setting-trigger")
+    document.querySelectorAll(".font-style .navbar--setting-trigger"),
   ).find((btn) => btn.innerText === fontType);
 
   toggleActiveClass(".font-style", clickedButton);
@@ -875,7 +875,7 @@ function updateFontSize(size) {
   }
 
   const clickedButton = Array.from(
-    document.querySelectorAll(".font-size .navbar--setting-trigger")
+    document.querySelectorAll(".font-size .navbar--setting-trigger"),
   ).find((btn) => btn.innerText === size);
 
   toggleActiveClass(".font-size", clickedButton);
@@ -891,7 +891,7 @@ function updateTheme(mode) {
       "--book--text": "#252733",
       "--book--btn-background": "#fef7e7",
       "--book--btn-background-active": "#fff1cc",
-      "--book--current-link": "#808eff",
+      "--book--current-link": "#67698E",
       "--book--nextchapter-background": "#ffde9f",
       "--book--nextchapter-background-second": "#fef7e7",
       "--book--nextchapter-btn-bg": "#252733",
@@ -904,7 +904,7 @@ function updateTheme(mode) {
       "--book--text": "#252733",
       "--book--btn-background": "#E6EAFF",
       "--book--btn-background-active": "#D6DDFF",
-      "--book--current-link": "#808eff",
+      "--book--current-link": "#67698E",
       "--book--nextchapter-background": "#BAC2FF",
       "--book--nextchapter-background-second": "#F0F3FF",
       "--book--nextchapter-btn-bg": "#252733",
@@ -948,7 +948,7 @@ function updateTheme(mode) {
   });
 
   const clickedButton = Array.from(
-    document.querySelectorAll(".theme-mode .navbar--setting-trigger")
+    document.querySelectorAll(".theme-mode .navbar--setting-trigger"),
   ).find((btn) => btn.innerText === mode);
 
   toggleActiveClass(".theme-mode", clickedButton);
