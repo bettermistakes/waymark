@@ -725,6 +725,7 @@
 
       element.className = filterTagTemplate ? filterTagTemplate.className : "filter--tag";
       element.textContent = option.label;
+      element.setAttribute("role", "listitem");
       element.setAttribute("href", "#");
       element.dataset.filterValue = option.value;
       element.classList.toggle("is-active", option.value === state.activeFilter);
@@ -755,8 +756,10 @@
       updateButtonLabel();
     }
 
+    filterButton.setAttribute("role", "button");
     filterButton.setAttribute("aria-haspopup", "true");
     filterButton.setAttribute("aria-expanded", "false");
+    filterContentInner.setAttribute("role", "list");
     filterRoot.classList.remove("is-open");
     filterContent.hidden = true;
     filterContent.style.display = "none";
