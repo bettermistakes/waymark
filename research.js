@@ -413,6 +413,14 @@
     };
   }
 
+  function normalizeSwiperRoles(swiperElement) {
+    if (!swiperElement) return;
+
+    $all('[role="list"], [role="listitem"]', swiperElement).forEach((node) => {
+      node.removeAttribute("role");
+    });
+  }
+
   function initResearchSwiper() {
     const swiperElement = $(SWIPER_SELECTOR);
     if (!swiperElement) return;
@@ -461,11 +469,19 @@
         },
       },
       on: {
-        init: syncNavigation,
+        init: function handleInit(swiper) {
+          syncNavigation(swiper);
+          normalizeSwiperRoles(swiperElement);
+        },
         slideChange: syncNavigation,
         resize: syncNavigation,
+        update: function handleUpdate() {
+          normalizeSwiperRoles(swiperElement);
+        },
       },
     });
+
+    normalizeSwiperRoles(swiperElement);
   }
 
   async function initResearchFeed() {
